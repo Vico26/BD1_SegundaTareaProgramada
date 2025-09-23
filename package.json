@@ -1,0 +1,25 @@
+{
+  "dependencies": {
+    "express": "^5.1.0",
+    "mssql": "^11.0.1"
+  },
+  "name": "bd1_segundatareaprogramada",
+  "version": "1.0.0",
+  "description": "",
+  "main": "connection.js",
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Vico26/BD1_SegundaTareaProgramada.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Vico26/BD1_SegundaTareaProgramada/issues"
+  },
+  "homepage": "https://github.com/Vico26/BD1_SegundaTareaProgramada#readme"
+}
