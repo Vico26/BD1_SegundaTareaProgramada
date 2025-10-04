@@ -24,4 +24,4 @@ async function insertarEmpleado(id,ValorDocumentoIdentidad,Nombre,NombrePuesto,F
     console.log(err); //imprimir el error en la consola
     return {success: false, error: err};
 }}
-insertarEmpleado(6,'118536989','Rosa Monteverde Hidalgo','Conductor','2021-11-12'); //llamada a la funcion para insertar un empleado
+//insertarEmpleado(6,'118536989','Rosa Monteverde Hidalgo','Conductor','2021-11-12'); //llamada a la funcion para insertar un empleado
