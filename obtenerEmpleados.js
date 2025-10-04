@@ -9,6 +9,6 @@ async function obtenerEmpleados(){
     }catch(error){
         console.log(error); //imprimir el error en la consola
     }
-} //funcion asincrona para obtener los empleados
+}
 module.exports=obtenerEmpleados; //exportacion de la funcion para ser utilizada en otros archivos
 obtenerEmpleados(); //llamada a la funcion para obtener los empleados
