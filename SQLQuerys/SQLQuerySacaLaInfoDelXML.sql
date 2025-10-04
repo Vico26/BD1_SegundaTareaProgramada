@@ -31,4 +31,12 @@ FROM OPENROWSET (BULK 'C:\Users\USUARIO\Documents\GitHub\BD1_SegundaTareaProgram
 --	U.value('@Pass','VARCHAR(128)')
 --FROM @xml.nodes('/Datos/Usuarios/usuario') AS X(U);
 
+--INSERT INTO dbo.ERROR(id,Codigo,Descripcion)
+--SELECT
+--	E.value('@Id','INT'),
+--	E.value('@Codigo','INT'),
+--	E.value('@Descripcion','VARCHAR(MAX)')
+--FROM @xml.nodes('/Datos/Error/errorCodigo') AS X(E);
+
+
 
