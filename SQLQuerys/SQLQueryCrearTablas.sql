@@ -29,19 +29,19 @@ CREATE TABLE dbo.Usuario(
 	Password varchar(128)
 );
 GO
-CREATE TABLE dbo.Movimiento(
-	id INT PRIMARY KEY,
-	IdEmpleado INT NOT NULL,
+CREATE TABLE dbo.Movimiento( 
+	id INT IDENTITY(1,1) PRIMARY KEY, 
+	IdEmpleado INT NOT NULL, 
 	IdTipoMovimiento INT NOT NULL,
-	Fecha DATETIME NOT NULL,
-	Monto INT NOT NULL,
-	NuevoSaldo INT NOT NULL,
+	Fecha DATETIME NOT NULL, 
+	Monto INT NOT NULL, 
+	NuevoSaldo INT NOT NULL, 
 	IdPostByUser INT NOT NULL,
-	PostInIP varchar(45) NOT NULL,
-	PostTime DATETIME NOT NULL
-	FOREIGN KEY (IdEmpleado) REFERENCES dbo.Empleado(id),
+	PostInIP varchar(45) NOT NULL, 
+	PostTime DATETIME NOT NULL 
+	FOREIGN KEY (IdEmpleado) REFERENCES dbo.Empleado(id), 
 	FOREIGN KEY (IdTipoMovimiento) REFERENCES dbo.TipoMovimiento(id),
-	FOREIGN KEY (IdPostByUser) REFERENCES dbo.Usuario(id)
+	FOREIGN KEY (IdPostByUser) REFERENCES dbo.Usuario(id) 
 );
 GO
 CREATE TABLE dbo.TipoEvento(
