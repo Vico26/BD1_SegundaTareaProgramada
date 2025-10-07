@@ -40,3 +40,7 @@ FROM OPENROWSET (BULK 'C:\Users\USUARIO\Documents\GitHub\BD1_SegundaTareaProgram
 
 
 
+
+
+
+

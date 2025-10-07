@@ -1,6 +1,6 @@
 const { rows } = require('mssql');
 const{sql,config}=require('./db'); //importacion del modulo de la base de datos
-async function insertarEmpleado(id,ValorDocumentoIdentidad,Nombre,NombrePuesto,FechaContratacion){
+async function insertarEmpleado(id,ValorDocumentoIdentidad,Nombre,NombrePuesto,FechaContratacion,idPostByUser,PostInIP){
     try{
         let pool=await sql.connect(config); //conexion a la base de datos
         let result=await pool.request() //ejecucion del procedimiento almacenado
@@ -9,6 +9,8 @@ async function insertarEmpleado(id,ValorDocumentoIdentidad,Nombre,NombrePuesto,F
         .input('Nombre',sql.VarChar(128),Nombre)
         .input('NombrePuesto',sql.VarChar(128),NombrePuesto)
         .input('FechaContratacion',sql.Date,FechaContratacion)
+        .input('idPostByUser',sql.Int,idPostByUser)
+        .input('PostInIP',sql.VarChar(45),PostInIP)
         .output('CodigoError',sql.Int)
         .execute('sp_InsertarEmpleado');
         
@@ -24,4 +26,4 @@ async function insertarEmpleado(id,ValorDocumentoIdentidad,Nombre,NombrePuesto,F
     console.log(err); //imprimir el error en la consola
     return {success: false, error: err};
 }}
-//insertarEmpleado(6,'118536989','Rosa Monteverde Hidalgo','Conductor','2021-11-12'); //llamada a la funcion para insertar un empleado
+//insertarEmpleado(7,'118693580','Marta Delgado Molina','Albañil','2021-11-12',5,'192.168.100.50');
