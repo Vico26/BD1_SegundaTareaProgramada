@@ -34,11 +34,11 @@ CREATE TABLE dbo.Movimiento(
 	IdEmpleado INT NOT NULL, 
 	IdTipoMovimiento INT NOT NULL,
 	Fecha DATETIME NOT NULL, 
-	Monto INT NOT NULL, 
-	NuevoSaldo INT NOT NULL, 
+	Monto INT NOT NULL,  
 	IdPostByUser INT NOT NULL,
 	PostInIP varchar(45) NOT NULL, 
-	PostTime DATETIME NOT NULL 
+	PostTime DATETIME NOT NULL,
+	NuevoSaldo INT NOT NULL
 	FOREIGN KEY (IdEmpleado) REFERENCES dbo.Empleado(id), 
 	FOREIGN KEY (IdTipoMovimiento) REFERENCES dbo.TipoMovimiento(id),
 	FOREIGN KEY (IdPostByUser) REFERENCES dbo.Usuario(id) 
