@@ -38,6 +38,31 @@ FROM OPENROWSET (BULK 'C:\Users\USUARIO\Documents\GitHub\BD1_SegundaTareaProgram
 --	E.value('@Descripcion','VARCHAR(MAX)')
 --FROM @xml.nodes('/Datos/Error/errorCodigo') AS X(E);
 
+--INSERT INTO dbo.Empleado(idPuesto,valorDocumentoIdentidad,Nombre,fechaContratacion,saldoVacaciones,esActivo)
+--SELECT
+--	P.id,
+--	E.value('@ValorDocumentoIdentidad','VARCHAR(20)'),
+--	E.value('@Nombre','VARCHAR(128)'),
+--	E.value('@FechaContratacion','DATETIME'),
+--	0,
+--	1
+--FROM @xml.nodes('/Datos/Empleados/empleado') AS X(E)
+--INNER JOIN Puesto P ON P.Nombre=E.value('@Puesto','VARCHAR(128)');
+
+--INSERT INTO dbo.Movimiento(IdEmpleado,IdTipoMovimiento,Fecha,Monto,PostByUser,PostInIP,PostTime,NuevoSaldo)
+--SELECT
+--	M.value('@ValorDocId','VARCHAR(20)'),
+--	M.value('@IdTipoMovimiento','INT'),
+--	M.value('@Fecha','DATE'),
+--	M.value('@Monto','INT'),
+--	M.value('@PostByUser','VARCHAR(128)'),
+--	M.value('@PostInIP','VARCHAR(45)'),
+--	M.value('@PostTime','DATETIME'),
+--	0
+--FROM @xml.nodes('/Datos/Movimientos/movimiento') AS X(M);
+
+
+
 
 
 

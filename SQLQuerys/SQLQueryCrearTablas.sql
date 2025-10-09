@@ -7,7 +7,7 @@ CREATE TABLE dbo.Puesto(
 );
 GO
 CREATE TABLE dbo.Empleado(
-	id INT PRIMARY KEY,
+	id INT IDENTITY(1,1) PRIMARY KEY,
 	idPuesto INT NOT NULL,
 	valorDocumentoIdentidad varchar(20) UNIQUE NOT NULL,
 	Nombre varchar(128) NOT NULL,
@@ -31,17 +31,17 @@ CREATE TABLE dbo.Usuario(
 GO
 CREATE TABLE dbo.Movimiento( 
 	id INT IDENTITY(1,1) PRIMARY KEY, 
-	IdEmpleado INT NOT NULL, 
+	IdEmpleado VARCHAR(20) NOT NULL, 
 	IdTipoMovimiento INT NOT NULL,
 	Fecha DATETIME NOT NULL, 
 	Monto INT NOT NULL,  
-	IdPostByUser INT NOT NULL,
-	PostInIP varchar(45) NOT NULL, 
+	PostByUser VARCHAR (128) NOT NULL,
+	PostInIP VARCHAR (45) NOT NULL, 
 	PostTime DATETIME NOT NULL,
 	NuevoSaldo INT NOT NULL
-	FOREIGN KEY (IdEmpleado) REFERENCES dbo.Empleado(id), 
+	FOREIGN KEY (IdEmpleado) REFERENCES dbo.Empleado(valorDocumentoIdentidad), 
 	FOREIGN KEY (IdTipoMovimiento) REFERENCES dbo.TipoMovimiento(id),
-	FOREIGN KEY (IdPostByUser) REFERENCES dbo.Usuario(id) 
+	FOREIGN KEY (PostByUser) REFERENCES dbo.Usuario(Username)
 );
 GO
 CREATE TABLE dbo.TipoEvento(
