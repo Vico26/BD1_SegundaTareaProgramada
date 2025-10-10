@@ -8,7 +8,7 @@ async function logIn(Username,Pass,PostInIp){
         .input('PostInIp',sql.VarChar(45),PostInIp)  //Cambiar a VarChar(45)
         .output('UserId',sql.Int)
         .execute('sp_LogIn');
-    const codigoError=result.output.returnValue;
+    const codigoError=result.returnValue;
     if(codigoErroo===0){
         console.log('LogIn exitoso',result.output.UserId);
         return{success:true,UserId:result.output.UserId};
