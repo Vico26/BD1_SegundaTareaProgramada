@@ -4,25 +4,41 @@ CREATE PROCEDURE sp_InsertarMovimiento
     @ValorDocId VARCHAR(20),
     @IdTipoMovimiento INT,
     @Monto INT,
-    @PostByUser VARCHAR(128),
+    @PostByUser INT,
     @PostInIP VARCHAR(45),
     @CodigoError INT OUTPUT
 AS
 BEGIN
     SET NOCOUNT ON;
     DECLARE @saldoActual INT, @nuevoSaldo INT, @tipoAccionM VARCHAR(10), @descrip VARCHAR(MAX), 
-	@nombreEmpleado VARCHAR(128),@NombreTipoM VARCHAR(128);
+	@nombreEmpleado VARCHAR(128),@NombreTipoM VARCHAR(128),@username VARCHAR(128);
 
-    -- Traer saldo actual del empleado
+	--Traer username del Usuario
+	SELECT @username= UserName FROM Usuario WHERE id=@PostByUser;
+
+	-- Traer saldo actual del empleado
     SELECT @saldoActual = saldoVacaciones, @nombreEmpleado=Nombre
     FROM Empleado
     WHERE valorDocumentoIdentidad = @ValorDocId
       AND esActivo = 1;
 
-	   -- Traer tipo de acción del movimiento (Credito/Debito)
+	-- Traer tipo de acción del movimiento (Credito/Debito)
     SELECT @tipoAccionM =tipoAccion, @NombreTipoM= Nombre
     FROM TipoMovimiento 
     WHERE id = @IdTipoMovimiento;
+
+	IF @username IS NULL
+	BEGIN
+		SET @CodigoError=50008;
+		SET @descrip='Usuario no encontrado. Documento Identidad: '+@ValorDocId+
+		', Nombre del empleado: '+@nombreEmpleado+
+		', Saldo actual: '+CAST(@saldoActual AS VARCHAR(20))+
+		', Nombre del movimiento: '+@NombreTipoM+
+		', Monto: '+CAST(@Monto AS VARCHAR(20));
+
+		EXEC sp_GuardarEvento 13,@descrip,@PostByUser,@PostInIP;
+		RETURN @CodigoError;
+	END
 
     IF @saldoActual IS NULL
     BEGIN
@@ -69,7 +85,7 @@ BEGIN
 
     -- Insertar movimiento
     INSERT INTO Movimiento(IdEmpleado, IdTipoMovimiento, Fecha, Monto, PostByUser, PostInIP, PostTime, NuevoSaldo)
-    VALUES (@ValorDocId, @IdTipoMovimiento, GETDATE(), @Monto, @PostByUser, @PostInIP, GETDATE(), @nuevoSaldo);
+    VALUES (@ValorDocId, @IdTipoMovimiento, GETDATE(), @Monto, @username, @PostInIP, GETDATE(), @nuevoSaldo);
 
     -- Actualizar saldo en Empleado
     UPDATE Empleado

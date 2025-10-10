@@ -19,3 +19,4 @@ async function logOut(User,PostInIp){
     console.log('Error con el LogOut',err); //imprimir el error en la consola
     return {success: false, error: err};
 }}
+module.exports={logOut}; //exportacion de la funcion para ser utilizada en otros archivos

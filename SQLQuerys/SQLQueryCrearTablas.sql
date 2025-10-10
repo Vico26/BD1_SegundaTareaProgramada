@@ -61,7 +61,7 @@ CREATE TABLE dbo.BitacoraEvento(
 );
 GO
 CREATE TABLE dbo.BDError(
-	id INT PRIMARY KEY,
+	id INT IDENTITY(1,1) PRIMARY KEY,
 	UserName varchar(50) NOT NULL,
 	Number INT NOT NULL,
 	StateE  INT NOT NULL,

@@ -19,4 +19,4 @@ async function buscarEmpleados(termino) {
     return "Error al buscar empleados";
   }
 }
-//buscarEmpleados('Adolfo').then(result => console.log(result));
+module.exports = { buscarEmpleados };
