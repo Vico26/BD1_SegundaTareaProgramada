@@ -12,10 +12,10 @@ const { obtenerUsuario }=require('./obtenerUsuario');//No se ocupa directo pero 
 const { insertarEmpleado }=require('./insertarEmpleado');//Listo
 const { insertarMovimiento }=require('./insertarMovimiento');
 const {guardaBitacora}=require('./guardaBitacora');//Por si se llega a necesitar
-const {buscarEmpleados}=require('./buscarEmpleados');
-const {actualizarEmpleado}=require('./actualizarEmpleado');
-const {consultarEmpleado}=require('./consultarEmpleado');
-const {borrarEmpleado}=require('./borrarEmpleado');
+const {buscarEmpleados}=require('./buscarEmpleados');//listo
+const {actualizarEmpleado}=require('./actualizarEmpleado');//listo
+const {consultarEmpleado}=require('./consultarEmpleado');//listo
+const {borrarEmpleado}=require('./borrarEmpleado');//listo
 
 /*LOGIN AND LOGOUT*/
 router.post('/login',async(req,res)=>{
@@ -84,3 +84,100 @@ router.post('/empleados/',async(req,res)=>{ //Insertar empleado
         console.error('Error en /empleados:', error);
         res.status(500).json({ error: 'Error interno del servidor' });
     }});
+
+router.get('/empleados/buscar/:termino',async(req,res)=>{
+    try{
+        const termino=req.params.termino;
+        const result=await buscarEmpleados(termino);
+        if (result==="No se ha encontrado"){
+            return res.status(404).json({error:result});
+        }
+        if (result==="Error al buscar empleados"){
+            return res.status(500).json({error:result});
+        }
+        res.json(result);
+    }catch(error){
+        console.error('Error en /empleados/buscar:', error);
+        res.status(500).json({ error: 'Error interno del servidor' });
+    }});
+router.put('/empleados/actualizar',async(req,res)=>{
+    try{
+    const{
+        valorDocumentoIdentidad,
+        nuevoValorDocumentoIdentidad,
+        nuevoNombre,
+        nuevoPuesto,
+    } =req.body;
+
+    const PostByUser=req.session.userId;
+    const PostInIP=req.headers['x-forwarded-for'] || req.connection.remoteAddress||req.ip;
+
+    if(!valorDocumentoIdentidad || !PostByUser || PostByUser===0 || !PostInIP){
+        return res.status(400).json({error:'Faltan datos obligatorios'});
+    }
+    const resultado=await actualizarEmpleado(
+        valorDocumentoIdentidad,
+        nuevoValorDocumentoIdentidad || null,
+        nuevoNombre || null,
+        nuevoPuesto || null,
+        PostByUser,
+        PostInIP,
+        0
+    );
+    const CodigoError=resultado?.CodigoError?? -1;
+    if (CodigoError!==0){
+        const errores=await obtenerErrores();
+        const descripcionError=errores.find(e=>e.CodigoError===CodigoError)?.DescripcionError || 'Error desconocido';
+        return res.status(400).json({error:descripcionError, CodigoError:CodigoError});
+    }
+    res.json({message:'Empleado actualizado correctamente'});
+}catch(error){
+    console.error('Error en /empleados/actualizar:', error);
+    res.status(500).json({ error: 'Error interno del servidor' });
+}});
+
+router.get('/empleados/consultar/:Filtro',async(req,res)=>{
+    try{
+        const Filtro=req.params.Filtro?.trim();
+        const PostByUser=req.session?.userId;    
+        const PostInIP=req.headers['x-forwarded-for'] || req.connection.remoteAddress||req.ip;
+        if(!Filtro||!PostByUser || PostByUser===0 || !PostInIP){
+            return res.status(400).json({error:'Faltan datos obligatorios'});
+        }
+        const resultado=await consultarEmpleado(Filtro,PostByUser,PostInIP);
+        if (resultado.length===0||!resultado){
+            return res.status(404).json({error:'No se ha encontrado'});
+        }
+        res.json(resultado);
+    }catch(error){
+        console.error('Error en /empleados/consultar:', error);
+        res.status(500).json({ error: 'Error interno del servidor' });
+    }
+});
+
+router.delete('/empleados/borrar/:id', async (req, res) => {
+    try {
+        const valorDocId = req.params.id?.trim();
+        const PostByUser = req.session?.userId;
+        const PostInIP = req.headers['x-forwarded-for'] || req.connection.remoteAddress || req.ip;
+
+        if (!valorDocId || !PostByUser || PostByUser === 0 || !PostInIP) {
+            return res.status(400).json({ error: 'Faltan datos obligatorios' });
+        }
+
+        const resultado = await borrarEmpleado(valorDocId, PostByUser, PostInIP);
+        const CodigoError = resultado?.CodigoError ?? -1;
+
+        if (CodigoError !== 0) {
+            const errores = await obtenerErrores();
+            const descripcionError = errores.find(e => e.CodigoError === CodigoError)?.DescripcionError || 'Error desconocido';
+            return res.status(400).json({ error: descripcionError, CodigoError });
+        }
+
+        return res.json({ message: 'Empleado borrado correctamente' });
+    } catch (error) {
+        console.error('Error en /empleados/borrar:', error);
+        res.status(500).json({ error: 'Error interno del servidor' });
+    }
+});
+
