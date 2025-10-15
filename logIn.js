@@ -1,4 +1,4 @@
-const{sql,config}=require('/db');
+const{sql,config}=require('./db');
 async function logIn(Username,Pass,PostInIp){
     try{
         let pool=await sql.connect(config); //conexion a la base de datos

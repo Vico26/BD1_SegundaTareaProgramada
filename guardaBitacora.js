@@ -12,4 +12,4 @@ async function guardaBitacora(idTipoEvento,Descripcion,idPostByUser,PostInIP){
     }catch(err){
         console.log(err);
     }}
-    modules.exports={guardaBitacora};
+    module.exports={guardaBitacora};

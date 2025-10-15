@@ -1,17 +1,26 @@
 /*Esta aprte es para obtener la rutas del servidor*/
 const express=require('express');
-const router=express.router();
+const router=express.Router();
 
+/*LogIn y LogOut*/
 const { logIn }=require('./logIn');//listo
 const { logOut }=require('./logOut');//listo
+
+/*Todos los procesos de obtener*/
 const { obtenerEmpleados }=require('./obtenerEmpleados');//listo
-const { obtenerMovimientos }=require('./obtenerMovimientos');
+const { obtenerMovimientos }=require('./obtenerMovimientos');//listo
 const{ obtenerErrores }=require('./obtenerErrores');//No se ocupa directo pero para logic si
 const { obtenerBitacora }=require('./obtenerBitacora');//No se si se ocupa en GUI pero para logica si
 const { obtenerUsuario }=require('./obtenerUsuario');//No se ocupa directo pero para logic si
+
+/*Todos los procesos de insertar*/
 const { insertarEmpleado }=require('./insertarEmpleado');//Listo
-const { insertarMovimiento }=require('./insertarMovimiento');
+const { insertarMovimiento }=require('./insertarMovimiento');//listo
+
+/*Procesos para la bitacoira*/
 const {guardaBitacora}=require('./guardaBitacora');//Por si se llega a necesitar
+
+/*Procesos para empleados*/
 const {buscarEmpleados}=require('./buscarEmpleados');//listo
 const {actualizarEmpleado}=require('./actualizarEmpleado');//listo
 const {consultarEmpleado}=require('./consultarEmpleado');//listo
@@ -181,3 +190,43 @@ router.delete('/empleados/borrar/:id', async (req, res) => {
     }
 });
 
+/*Procesos de movimientos*/
+router.get('/empleados/movimientos/:valorDocId',async(req,res)=>{
+    try{
+        const valorDocId=req.params.valorDocId?.trim();
+        if(!valorDocId){
+            return res.status(400).json({error:'Faltan datos'});
+        }
+        const resultado=await obtenerMovimientos(valorDocId);
+        if(!resultado || resultado.length===0){
+            return res.status(404).json({error:'No se han encontrado movimientos'});
+        }
+        res.json(resultado);
+    }catch(error){
+        console.error('Error en /empleados/movimientos:', error);
+        res.status(500).json({ error: 'Error interno del servidor' });
+    }
+});
+
+router.post('/empleados/movimientos',async(req,res)=>{
+    try{
+        const{valorDocIdenti,TipoMovimiento,Monto}=req.body;
+        const PostByUser=req.session.userId; // Obtener el usuario de la sesión
+        const PostInIP=req.headers['x-forwarded-for'] || req.connection.remoteAddress||req.ip;
+        if(!valorDocIdenti||!TipoMovimiento||!Monto||!PostByUser){
+            return res.status(401).json({error:'Faltan datos obligatorios'});
+        }
+        const resultado=await insertarMovimiento(valorDocIdenti,TipoMovimiento,Monto,PostByUser,PostInIP);
+        if(!resultado.success){
+            const errores=await obtenerErrores();
+            const descripcionError=errores.find(e=>e.CodigoError===resultado.CodigoError)?.DescripcionError || 'Error desconocido';
+            return res.status(400).json({error:descripcionError, CodigoError:resultado.CodigoError});
+        }
+        res.json({message:'Movimiento insertado correctamente'});
+    }catch(error){
+        console.error('Error en /empleados/movimientos:', error);
+        res.status(500).json({ error: 'Error interno del servidor' });
+    }  
+});
+
+module.exports=router;
