@@ -36,12 +36,13 @@ router.post('/login',async(req,res)=>{
         const PostInIP=req.headers['x-forwarded-for'] || req.connection.remoteAddress||req.ip;
         const resultado = await logIn(Usuario, Password,PostInIP);
         if (resultado.success) {
-            req.session.userId = userId; // Guardar el usuario en la sesión
+            req.session.userId = resultado.UserId; // Guardar el usuario en la sesión
             res.json(resultado);}
         else {
             const errores = await obtenerErrores();
-            const descripcionError = errores.find(e => e.CodigoError === resultado.codigoError)?.DescripcionError || 'Error desconocido';
+            const descripcionError = errores.find(e => e.Codigo === resultado.codigoError)?.Descripcion || 'Error desconocido';
             res.status(400).json({ error: descripcionError, CodigoError: resultado.codigoError });
+            console.log('Error de login:', descripcionError, resultado.codigoError);
     }}catch (error) {
         console.error('Error en /login:', error);
         res.status(500).json({ error: 'Error interno del servidor' });
@@ -86,7 +87,7 @@ router.post('/empleados/',async(req,res)=>{ //Insertar empleado
             res.json(resultado,{menssage:'Empleado insertado correctamente'});
         }else{
             const errores=await obtenerErrores();
-            const descripcionError=errores.find(e=>e.CodigoError===resultado.CodigoError)?.DescripcionError || 'Error desconocido';
+            const descripcionError=errores.find(e=>e.CodigoError===resultado.CodigoError)?.Descripcion || 'Error desconocido';
             res.status(400).json({error:descripcionError, CodigoError:resultado.CodigoError});
         }}
     catch(error){
@@ -136,7 +137,7 @@ router.put('/empleados/actualizar',async(req,res)=>{
     const CodigoError=resultado?.CodigoError?? -1;
     if (CodigoError!==0){
         const errores=await obtenerErrores();
-        const descripcionError=errores.find(e=>e.CodigoError===CodigoError)?.DescripcionError || 'Error desconocido';
+        const descripcionError=errores.find(e=>e.CodigoError===CodigoError)?.Descripcion || 'Error desconocido';
         return res.status(400).json({error:descripcionError, CodigoError:CodigoError});
     }
     res.json({message:'Empleado actualizado correctamente'});
@@ -179,7 +180,7 @@ router.delete('/empleados/borrar/:id', async (req, res) => {
 
         if (CodigoError !== 0) {
             const errores = await obtenerErrores();
-            const descripcionError = errores.find(e => e.CodigoError === CodigoError)?.DescripcionError || 'Error desconocido';
+            const descripcionError = errores.find(e => e.CodigoError === CodigoError)?.Descripcion || 'Error desconocido';
             return res.status(400).json({ error: descripcionError, CodigoError });
         }
 
@@ -219,7 +220,7 @@ router.post('/empleados/movimientos',async(req,res)=>{
         const resultado=await insertarMovimiento(valorDocIdenti,TipoMovimiento,Monto,PostByUser,PostInIP);
         if(!resultado.success){
             const errores=await obtenerErrores();
-            const descripcionError=errores.find(e=>e.CodigoError===resultado.CodigoError)?.DescripcionError || 'Error desconocido';
+            const descripcionError=errores.find(e=>e.CodigoError===resultado.CodigoError)?.Descripcion || 'Error desconocido';
             return res.status(400).json({error:descripcionError, CodigoError:resultado.CodigoError});
         }
         res.json({message:'Movimiento insertado correctamente'});

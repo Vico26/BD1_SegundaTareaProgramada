@@ -9,5 +9,5 @@ async function obtenerErrores(){
     }catch(error){
         console.log(error);
     }}
-module.exports=obtenerErrores; //exportacion de la funcion para ser utilizada en otros archivos
-//obtenerErrores(); //llamada a la funcion para obtener los empleados   
+module.exports={ obtenerErrores }; //exportacion de la funcion para ser utilizada en otros archivos
+obtenerErrores(); //llamada a la funcion para obtener los empleados   

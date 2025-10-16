@@ -12,6 +12,7 @@ app.use(express.json());
 app.use(express.static(path.join(__dirname,'public')));
 app.use(cors());
 app.use(rutas);  //definicion de la ruta principal
+app.use(express.urlencoded({extended:true}));
 
 app.use(session({
     secret: 'MY_secret',
@@ -25,6 +26,10 @@ app.use(session({
 app.get('/',(req,res)=>{
     res.sendFile(path.join(__dirname,'public','index.html'));
 });
+app.get('/interfazDentro.html', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'interfazDentro.html'));
+});
+
 
 const PORT=process.env.PORT || 3000;  //definicion del puerto
 app.listen(PORT,()=>{

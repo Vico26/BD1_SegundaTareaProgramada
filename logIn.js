@@ -9,7 +9,7 @@ async function logIn(Username,Pass,PostInIp){
         .output('UserId',sql.Int)
         .execute('sp_LogIn');
     const codigoError=result.returnValue;
-    if(codigoErroo===0){
+    if(codigoError===0){
         console.log('LogIn exitoso',result.output.UserId);
         return{success:true,UserId:result.output.UserId};
 

@@ -9,4 +9,4 @@ async function obtenerBitacora(){
         console.log(err);
     }}
     module.exports={obtenerBitacora};
-    //obtenerBitacora();
+    obtenerBitacora();
