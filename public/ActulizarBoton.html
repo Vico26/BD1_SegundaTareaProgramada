@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Actualizar Empleado</title>
+  <style>
+    * { margin:0; padding:0; box-sizing:border-box; font-family:'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+    body { background:linear-gradient(135deg,#6a11cb 0%,#2575fc 100%); min-height:100vh; display:flex; justify-content:center; align-items:center; padding:20px; }
+    .container { background:#fff; border-radius:12px; box-shadow:0 10px 30px rgba(0,0,0,.2); width:100%; max-width:520px; padding:30px; }
+    h1 { color:#333; text-align:center; margin-bottom:24px; font-weight:600; font-size:22px; }
+    .form-group { margin-bottom:16px; }
+    label { display:block; margin-bottom:6px; font-weight:500; color:#555; }
+    input { width:100%; padding:12px 14px; border:1px solid #ddd; border-radius:6px; font-size:16px; transition:.2s; }
+    input:focus { outline:none; border-color:#4a90e2; box-shadow:0 0 0 2px rgba(74,144,226,.2); }
+    .hint { font-size:12px; color:#666; margin-top:4px; }
+    .buttons { display:flex; gap:12px; margin-top:20px; }
+    button { flex:1; padding:12px; border:none; border-radius:6px; font-size:16px; font-weight:600; cursor:pointer; transition:.2s; }
+    .save-btn { background:#4a90e2; color:#fff; }
+    .save-btn:hover { background:#3a7bc8; transform:translateY(-1px); }
+    .cancel-btn { background:#f5f5f5; color:#333; }
+    .cancel-btn:hover { background:#e0e0e0; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Actualizar Empleado</h1>
+
+    <form id="formActualizar" action="#" method="post" novalidate>
+      <div class="form-group">
+        <label for="valorDocumentoIdentidad">Documento actual *</label>
+        <input type="text" id="valorDocumentoIdentidad" name="valorDocumentoIdentidad" placeholder="Ingrese el número de documento actual" required />
+        <div class="hint">Obligatorio</div>
+      </div>
+
+      <div class="form-group">
+        <label for="nuevoValorDocumentoIdentidad">Nuevo documento</label>
+        <input type="text" id="nuevoValorDocumentoIdentidad" name="nuevoValorDocumentoIdentidad" placeholder="Dejar vacío si no cambia" />
+      </div>
+
+      <div class="form-group">
+        <label for="nuevoNombre">Nuevo nombre</label>
+        <input type="text" id="nuevoNombre" name="nuevoNombre" placeholder="Dejar vacío si no cambia" />
+      </div>
+
+      <div class="form-group">
+        <label for="nuevoPuesto">Nuevo puesto</label>
+        <input type="text" id="nuevoPuesto" name="nuevoPuesto" placeholder="Dejar vacío si no cambia" />
+      </div>
+
+      <div class="buttons">
+        <button type="button" class="cancel-btn" onclick="window.close()">Cancelar</button>
+        <button type="submit" class="save-btn">Guardar cambios</button>
+      </div>
+    </form>
+  </div>
+
+  <script>
+    function alMenosUnCambio(...vals) {
+      return vals.some(v => v && String(v).trim() !== '');
+    }
+
+    async function enviarActualizacion(payload) {
+      console.groupCollapsed('%c[PUT] /api/empleados/actualizar', 'color:#4a90e2');
+      console.log('Payload:', payload);
+
+      let res, data = null, text = '';
+      try {
+        res = await fetch('http://localhost:3000/api/empleados/actualizar', {
+          method: 'PUT',
+          credentials: 'include', // ENVÍA COOKIES DE SESIÓN
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+      } catch (netErr) {
+        console.error('%cNETWORK ERROR', 'color:#c0392b;font-weight:bold', netErr);
+        console.groupEnd();
+        throw new Error('Fallo de red (CORS/servidor no disponible). Revisa la consola y Network.');
+      }
+
+      const ct = res.headers.get('content-type') || '';
+      if (ct.includes('application/json')) {
+        try { data = await res.json(); } catch {}
+      } else {
+        try { text = await res.text(); } catch {}
+      }
+
+      console.log('Status:', res.status, res.statusText);
+      if (data) console.log('Body (json):', data);
+      else if (text) console.log('Body (text):', text);
+
+      if (!res.ok) {
+        const msg = data?.error || text || `Error HTTP ${res.status}`;
+        console.error('%cHTTP ERROR', 'color:#e74c3c;font-weight:bold', msg);
+        console.groupEnd();
+        throw new Error(msg);
+      }
+
+      console.log('%cOK', 'color:#27ae60;font-weight:bold', data);
+      console.groupEnd();
+      return data;
+    }
+
+    async function handleSubmit(e) {
+      e.preventDefault();
+
+      const valorDocumentoIdentidad = document.getElementById('valorDocumentoIdentidad')?.value.trim();
+      const nuevoValorDocumentoIdentidad = document.getElementById('nuevoValorDocumentoIdentidad')?.value.trim();
+      const nuevoNombre = document.getElementById('nuevoNombre')?.value.trim();
+      const nuevoPuesto = document.getElementById('nuevoPuesto')?.value.trim();
+
+      if (!valorDocumentoIdentidad) {
+        alert('El documento actual es obligatorio.');
+        return;
+      }
+      if (!alMenosUnCambio(nuevoValorDocumentoIdentidad, nuevoNombre, nuevoPuesto)) {
+        alert('Debes ingresar al menos un dato nuevo: documento, nombre o puesto.');
+        return;
+      }
+
+      const payload = {
+        valorDocumentoIdentidad,
+        nuevoValorDocumentoIdentidad: nuevoValorDocumentoIdentidad || null,
+        nuevoNombre: nuevoNombre || null,
+        nuevoPuesto: nuevoPuesto || null,
+      };
+      console.table(payload);
+
+      try {
+        const data = await enviarActualizacion(payload);
+        alert(data?.message || 'Empleado actualizado correctamente');
+        e.target.reset();
+      } catch (err) {
+        alert(err.message || 'No se pudo actualizar el empleado');
+      }
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      const form = document.getElementById('formActualizar');
+      if (form) form.addEventListener('submit', handleSubmit);
+    });
+  </script>
+</body>
+</html>
