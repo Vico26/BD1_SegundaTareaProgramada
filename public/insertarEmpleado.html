@@ -116,7 +116,7 @@
     <div class="container">
         <div class="logo">
             <!-- Icono de empleado (usando unicode como alternativa a FontAwesome) -->
-            <span style="font-size: 48px;"></span>
+            <span style="font-size: 48px;">👨‍💼</span>
         </div>
         <h1>Registro de Empleado</h1>
         
@@ -134,12 +134,7 @@
             <div class="form-group">
                 <label for="position">Puesto</label>
                 <select id="position" required>
-                    <option value="" disabled selected>Seleccione un puesto</option>
-                    <option value="Gerente">Gerente</option>
-                    <option value="Supervisor">Supervisor</option>
-                    <option value="Analista">Analista</option>
-                    <option value="Asistente">Asistente</option>
-                    <option value="Otro">Otro</option>
+    
                 </select>
             </div>
             
@@ -178,6 +173,33 @@
             alert('Regresando...');
             // En un caso real, aquí iría: window.history.back() o similar
         }
+        
+    async function cargarPuestos() {
+    const select = document.getElementById('position');
+    select.innerHTML = '<option disabled selected>Cargando puestos...</option>';
+
+    try {
+        const res = await fetch('/api/puestos');
+        console.log('Respuesta del fetch:', res);
+
+        if (!res.ok) throw new Error(`HTTP error ${res.status}`);
+
+        const puestos = await res.json();
+        console.log('Puestos recibidos:', puestos);
+
+        select.innerHTML = '<option value="" disabled selected>Seleccione un puesto</option>';
+        puestos.forEach(p => {
+            const option = document.createElement('option');
+            option.value = p.Nombre;
+            option.textContent = p.Nombre;
+            select.appendChild(option);
+        });
+    } catch (err) {
+        console.error('Error al cargar puestos:', err);
+        select.innerHTML = '<option disabled selected>Error al cargar puestos</option>';
+    }
+}
+cargarPuestos();   
     </script>
 </body>
 </html>

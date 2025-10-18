@@ -7,5 +7,7 @@ async function obtenerPuestos(){
         return result.recordset;
     }catch(err){
         console.log(err);
+        return [];
     }}
     module.exports={obtenerPuestos};
+    //obtenerPuestos();

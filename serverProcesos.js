@@ -231,5 +231,25 @@ router.post('/empleados/movimientos',async(req,res)=>{
         res.status(500).json({ error: 'Error interno del servidor' });
     }  
 });
+/*Funciones extra*/ 
+router.get('/puestos',async(req,res)=>{ //Obtener empleados
+    try{
+        const puestos=await obtenerPuestos();
+        res.json(puestos);
+    }
+    catch(error){
+        console.error('Error en /puestos:', error);
+        res.status(500).json({ error: 'Error interno del servidor' });
+    }});
+    
+router.get('/tipoMovs',async(req,res)=>{ //Obtener empleados
+    try{
+        const tipoM=await obtenerTipoMov();
+        res.json(tipoM);
+    }
+    catch(error){
+        console.error('Error en /tipoMovs:', error);
+        res.status(500).json({ error: 'Error interno del servidor' });
+    }});
 
 module.exports=router;
