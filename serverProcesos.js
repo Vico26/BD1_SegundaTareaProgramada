@@ -12,6 +12,8 @@ const { obtenerMovimientos }=require('./obtenerMovimientos');//listo
 const{ obtenerErrores }=require('./obtenerErrores');//No se ocupa directo pero para logic si
 const { obtenerBitacora }=require('./obtenerBitacora');//No se si se ocupa en GUI pero para logica si
 const { obtenerUsuario }=require('./obtenerUsuario');//No se ocupa directo pero para logic si
+const { obtenerPuestos }=require('./obtenerPuestos');//No se ocupa directo pero para logic si
+const { obtenerTipoMov }=require('./obtenerTipoMov');//No se ocupa directo pero para logic si
 
 /*Todos los procesos de insertar*/
 const { insertarEmpleado }=require('./insertarEmpleado');//Listo
