@@ -149,7 +149,7 @@
         <input type="text" id="filtro" placeholder="Buscar por nombre o documento...">
         <button onclick="filtrarEmpleados()">Filtrar</button>
       </div>
-      <button class="insert-button"> Insertar</button>
+      <button class="insert-button" onclick="abrirModal()">Insertar</button>
       <button class="logOut-button" onclick="logOut()">Cerrar Sesión</button>
     </div>
 
@@ -171,6 +171,9 @@
   <div id="modalInsertar" class="modal">
     <div class="modal-content">
       <h3>Opciones para insertar: </h3>
+      <button class="empleado" onclick="insertarEmpleadoBttn()">Insertar Empleado</button>
+      <button class="movimiento" onclick="insertarMovimientoBttn()">Insertar Movimiento</button>
+      <button class="cerrar" onclick="cerrarModal()">Cerrar</button>
   </div>
   <script>
     //  cambiar por datos reales desde base de datos)
@@ -223,7 +226,10 @@
     }
     function abrirModal() { document.getElementById('modalInsertar').style.display = 'flex'; }
     function cerrarModal() { document.getElementById('modalInsertar').style.display = 'none'; }
-    function insertarEmpleadoBttn(){ cerrarModal();}
+    function insertarEmpleadoBttn(){ cerrarModal();
+      window.open('insertarEmpleado.html','popup','width=600,height=400');}
+    function insertarMovimientoBttn(){ cerrarModal();
+      window.open('insertarMovimiento.html','popup','width=600,height=400');}
 
    
     function logOut() {

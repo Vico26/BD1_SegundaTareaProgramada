@@ -116,7 +116,7 @@
     <div class="container">
         <div class="logo">
             <!-- Icono de empleado (usando unicode como alternativa a FontAwesome) -->
-            <span style="font-size: 48px;">👨‍💼</span>
+            <span style="font-size: 48px;"></span>
         </div>
         <h1>Registro de Empleado</h1>
         
@@ -134,12 +134,11 @@
             <div class="form-group">
                 <label for="position">Puesto</label>
                 <select id="position" required>
-    
+                <option value="" disabled selected>Seleccione un puesto</option>
                 </select>
             </div>
             
             <div class="buttons">
-                <button type="button" class="back-btn" onclick="goBack()">Regresar</button>
                 <button type="submit" class="save-btn">Guardar</button>
             </div>
         </form>
@@ -160,46 +159,37 @@
                 return;
             }
             
-            // Aquí normalmente enviaríamos los datos al servidor
-            // Por ahora solo mostramos un mensaje
             alert(`Empleado registrado:\nDocumento: ${document}\nNombre: ${name}\nPuesto: ${position}`);
             
-            // Limpiar el formulario después de guardar
             document.getElementById('employeeForm').reset();
         });
         
-        function goBack() {
-            // Función para regresar a la página anterior
-            alert('Regresando...');
-            // En un caso real, aquí iría: window.history.back() o similar
-        }
-        
     async function cargarPuestos() {
     const select = document.getElementById('position');
-    select.innerHTML = '<option disabled selected>Cargando puestos...</option>';
-
     try {
-        const res = await fetch('/api/puestos');
-        console.log('Respuesta del fetch:', res);
-
-        if (!res.ok) throw new Error(`HTTP error ${res.status}`);
+        const res = await fetch('/puestos'); // igual que tu router
+        if (!res.ok) throw new Error('Error HTTP: ' + res.status);
 
         const puestos = await res.json();
-        console.log('Puestos recibidos:', puestos);
 
+        // Limpiar select y agregar opción por defecto
         select.innerHTML = '<option value="" disabled selected>Seleccione un puesto</option>';
+
         puestos.forEach(p => {
             const option = document.createElement('option');
-            option.value = p.Nombre;
+            option.value = p.Nombre; // aquí viene de tu SP
             option.textContent = p.Nombre;
             select.appendChild(option);
         });
+
     } catch (err) {
         console.error('Error al cargar puestos:', err);
-        select.innerHTML = '<option disabled selected>Error al cargar puestos</option>';
+        select.innerHTML = '<option value="" disabled selected>Error al cargar puestos</option>';
     }
 }
-cargarPuestos();   
+
+// Cargar puestos al cargar la página
+document.addEventListener('DOMContentLoaded', cargarPuestos);
     </script>
 </body>
 </html>

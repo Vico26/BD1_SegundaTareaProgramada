@@ -232,16 +232,17 @@ router.post('/empleados/movimientos',async(req,res)=>{
     }  
 });
 /*Funciones extra*/ 
-router.get('/puestos',async(req,res)=>{ //Obtener empleados
-    try{
-        const puestos=await obtenerPuestos();
+router.get('/puestos', async (req, res) => {
+    try {
+        const puestos = await obtenerPuestos();
+        //console.log("Puestos obtenidos:", puestos); // debug
         res.json(puestos);
-    }
-    catch(error){
+    } catch (error) {
         console.error('Error en /puestos:', error);
         res.status(500).json({ error: 'Error interno del servidor' });
-    }});
-    
+    }
+});
+
 router.get('/tipoMovs',async(req,res)=>{ //Obtener empleados
     try{
         const tipoM=await obtenerTipoMov();
