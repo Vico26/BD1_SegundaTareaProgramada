@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Insertar Empleado</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+        
+        .container {
+            background-color: white;
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            width: 100%;
+            max-width: 450px;
+            padding: 30px;
+        }
+        
+        h1 {
+            color: #333;
+            text-align: center;
+            margin-bottom: 30px;
+            font-weight: 600;
+            font-size: 24px;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: #555;
+        }
+        
+        input, select {
+            width: 100%;
+            padding: 12px 15px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-size: 16px;
+            transition: all 0.3s;
+        }
+        
+        input:focus, select:focus {
+            outline: none;
+            border-color: #4a90e2;
+            box-shadow: 0 0 0 2px rgba(74, 144, 226, 0.2);
+        }
+        
+        .buttons {
+            display: flex;
+            gap: 15px;
+            margin-top: 30px;
+        }
+        
+        button {
+            flex: 1;
+            padding: 12px;
+            border: none;
+            border-radius: 6px;
+            font-size: 16px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .save-btn {
+            background-color: #4a90e2;
+            color: white;
+        }
+        
+        .save-btn:hover {
+            background-color: #3a7bc8;
+            transform: translateY(-2px);
+        }
+        
+        .back-btn {
+            background-color: #f5f5f5;
+            color: #333;
+        }
+        
+        .back-btn:hover {
+            background-color: #e0e0e0;
+            transform: translateY(-2px);
+        }
+        
+        .logo {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        
+        .logo i {
+            font-size: 48px;
+            color: #4a90e2;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="logo">
+            <!-- Icono de empleado (usando unicode como alternativa a FontAwesome) -->
+            <span style="font-size: 48px;"></span>
+        </div>
+        <h1>Registro de Empleado</h1>
+        
+        <form id="employeeForm">
+            <div class="form-group">
+                <label for="document">Valor documento identidad</label>
+                <input type="text" id="document" placeholder="Ingrese el número de documento" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="name">Nombre completo</label>
+                <input type="text" id="name" placeholder="Ingrese el nombre completo" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="position">Puesto</label>
+                <select id="position" required>
+                    <option value="" disabled selected>Seleccione un puesto</option>
+                    <option value="Gerente">Gerente</option>
+                    <option value="Supervisor">Supervisor</option>
+                    <option value="Analista">Analista</option>
+                    <option value="Asistente">Asistente</option>
+                    <option value="Otro">Otro</option>
+                </select>
+            </div>
+            
+            <div class="buttons">
+                <button type="button" class="back-btn" onclick="goBack()">Regresar</button>
+                <button type="submit" class="save-btn">Guardar</button>
+            </div>
+        </form>
+    </div>
+
+    <script>
+        document.getElementById('employeeForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            // Obtener los valores de los campos
+            const document = document.getElementById('document').value;
+            const name = document.getElementById('name').value;
+            const position = document.getElementById('position').value;
+            
+            // Validación básica
+            if (!document || !name || !position) {
+                alert('Por favor, complete todos los campos');
+                return;
+            }
+            
+            // Aquí normalmente enviaríamos los datos al servidor
+            // Por ahora solo mostramos un mensaje
+            alert(`Empleado registrado:\nDocumento: ${document}\nNombre: ${name}\nPuesto: ${position}`);
+            
+            // Limpiar el formulario después de guardar
+            document.getElementById('employeeForm').reset();
+        });
+        
+        function goBack() {
+            // Función para regresar a la página anterior
+            alert('Regresando...');
+            // En un caso real, aquí iría: window.history.back() o similar
+        }
+    </script>
+</body>
+</html>

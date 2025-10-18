@@ -9,5 +9,5 @@ async function obtenerUsuario(user,Pass){
         console.log(err);
     }}
     module.exports={obtenerUsuario};
-    obtenerUsuario();
+    //obtenerUsuario();
     

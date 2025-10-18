@@ -10,6 +10,6 @@ async function obtenerEmpleados(){
         console.log(error); //imprimir el error en la consola
     }
 }
-module.exports=obtenerEmpleados; //exportacion de la funcion para ser utilizada en otros archivos
+module.exports={obtenerEmpleados}; //exportacion de la funcion para ser utilizada en otros archivos
 //obtenerEmpleados(); //llamada a la funcion para obtener los empleados
 

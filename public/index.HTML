@@ -104,7 +104,7 @@
         if (res.ok && data.success) {
           mensaje.textContent = 'LogIn exitoso';
           mensaje.className = 'msg success';
-          // Redirigir si quieres:
+          //Redirige a la otra interfaz
            window.location.href = '/interfazDentro.html';
         } else {
           mensaje.textContent = `${data.error || 'Credenciales incorrectas'}`;
