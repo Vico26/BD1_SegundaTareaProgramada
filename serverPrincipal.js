@@ -8,18 +8,23 @@ const rutas=require('./serverProcesos');//importacion de las rutas
 const path=require('path');      //importacion de path
 const app=express();
 
+app.use(session({
+    secret: 'MY_secret',
+    resave: false,
+    saveUninitialized: true,
+    cookie:{ secure:false}
+ })); // 1 hora
+ 
 app.use(express.json());
 app.use(express.static(path.join(__dirname,'public')));
 app.use(cors());
 app.use(rutas);  //definicion de la ruta principal
 app.use(express.urlencoded({extended:true}));
 
-app.use(session({
-    secret: 'MY_secret',
-    resave: false,
-    saveUninitialized: true,
-    cookie:{ maxAge: 1000 * 60 * 60, httpOnly:true}
- })); // 1 hora
+ app.use(cors({
+    origin: 'http://localhost:5500', // el origen de tu front
+    credentials: true
+}));
 
  app.use('/api', rutas);  //definicion de la ruta principal
 

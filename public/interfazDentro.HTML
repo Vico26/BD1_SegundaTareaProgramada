@@ -175,27 +175,29 @@
       <button class="movimiento" onclick="insertarMovimientoBttn()">Insertar Movimiento</button>
       <button class="cerrar" onclick="cerrarModal()">Cerrar</button>
   </div>
+  <button class="consultar" onclick="consultarEmpleado('${emp.ValorDocumentoIdentidad}')">Consultar</button>
   <script>
     //  cambiar por datos reales desde base de datos)
     function mostrarEmpleados(lista) {
-      const tbody = document.getElementById('tabla-empleados');
-      tbody.innerHTML = ''; // Limpiar tabla
-      lista.forEach(emp => {
-        const fila = `
-          <tr>
-            <td>${emp.ValorDocumentoIdentidad}</td>
-            <td>${emp.Nombre}</td>
-            <td>${emp.Puesto}</td>
-            <td class="action-buttons">
-              <button class="consultar">Consultar</button>
-              <button class="actualizar">Actualizar</button>
-              <button class="eliminar">Eliminar</button>
-              <button class="movimientos">Movimientos</button>
-            </td>
-          </tr>`;
-        tbody.innerHTML += fila;
-      });
-    }
+  const tbody = document.getElementById('tabla-empleados');
+  tbody.innerHTML = ''; // Limpiar tabla
+  lista.forEach(emp => {
+    const fila = `
+      <tr>
+        <td>${emp.ValorDocumentoIdentidad}</td>
+        <td>${emp.Nombre}</td>
+        <td>${emp.Puesto}</td>
+        <td class="action-buttons">
+          <button class="consultar" onclick="consultarEmpleado('${emp.ValorDocumentoIdentidad}')">Consultar</button>
+          <button class="actualizar">Actualizar</button>
+          <button class="eliminar">Eliminar</button>
+          <button class="movimientos">Movimientos</button>
+        </td>
+      </tr>`;
+    tbody.innerHTML += fila;
+  });
+}
+
 
     function filtrarEmpleados() {
       const filtro = document.getElementById('filtro').value.trim().toLowerCase();
@@ -237,7 +239,8 @@
   fetch('/logout', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ Usuario: usuario })
+    body: JSON.stringify({ Usuario: usuario }),
+    credentials: 'include'
   })
   .then(response => {
     if (response.ok) {
@@ -253,7 +256,8 @@
     try{
       const res= await fetch('/empleados',{
         method:'GET',
-        headers:{'Content-Type':'application/json'}
+        headers:{'Content-Type':'application/json'},
+        credentials:'include'
       });
       if(!res) throw new Error('Error al obtener empleados');
       const empleados =await res.json();
@@ -262,7 +266,46 @@
       console.error(err);
     }
   }
-  
+
+  async function consultarEmpleado(filtro) {
+  try {
+    const res = await fetch(`/empleados/consultar/${encodeURIComponent(filtro)}`, {
+      method: 'GET',
+      headers: { 'Content-Type': 'application/json' },
+      credentials: 'include'
+    });
+
+    if (!res.ok) {
+      const data = await res.json();
+      throw new Error(data.error || 'No se pudo consultar el empleado');
+    }
+
+    const empleadoData = await res.json();
+
+    // Determinar si es array o objeto
+    const emp = Array.isArray(empleadoData) ? empleadoData[0] : empleadoData;
+
+    if (!emp) {
+      alert('Empleado no encontrado');
+      return;
+    }
+
+    // Abrir modal y mostrar información
+    abrirModal();
+    const modalContent = document.querySelector('#modalInsertar .modal-content');
+    modalContent.innerHTML = `
+      <h3>Empleado: ${emp.Nombre}</h3>
+      <p><strong>Documento:</strong> ${emp.DocumentoIdentidad}</p>
+      <p><strong>Puesto:</strong> ${emp["Nombre del Puesto"]}</p>
+      <p><strong>Saldo:</strong> ${emp["Saldo de vacaciones"] !== undefined ? emp["Saldo de vacaciones"] : 'N/A'}</p>
+      <button class="cerrar" onclick="cerrarModal()">Cerrar</button>
+    `;
+  } catch (err) {
+    console.error(err);
+    alert(err.message);
+  }
+}
+
     // Llamar a obtener empleados al cargar la página
     obtenerEmpleados();
   </script>

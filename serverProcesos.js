@@ -55,6 +55,7 @@ router.post('/logout',async(req,res)=>{
     const {Usuario}=req.body;
     try{const PostInIP=req.headers['x-forwarded-for'] || req.connection.remoteAddress||req.ip;
     const resultado=await logOut(Usuario,PostInIP);
+    req.session.destroy();
     res.json(resultado);}
     catch(error){
         console.error('Error en /logout:', error);
@@ -148,24 +149,30 @@ router.put('/empleados/actualizar',async(req,res)=>{
     res.status(500).json({ error: 'Error interno del servidor' });
 }});
 
-router.get('/empleados/consultar/:Filtro',async(req,res)=>{
-    try{
-        const Filtro=req.params.Filtro?.trim();
-        const PostByUser=req.session?.userId;    
-        const PostInIP=req.headers['x-forwarded-for'] || req.connection.remoteAddress||req.ip;
-        if(!Filtro||!PostByUser || PostByUser===0 || !PostInIP){
-            return res.status(400).json({error:'Faltan datos obligatorios'});
-        }
-        const resultado=await consultarEmpleado(Filtro,PostByUser,PostInIP);
-        if (resultado.length===0||!resultado){
-            return res.status(404).json({error:'No se ha encontrado'});
-        }
-        res.json(resultado);
-    }catch(error){
-        console.error('Error en /empleados/consultar:', error);
-        res.status(500).json({ error: 'Error interno del servidor' });
+router.get('/empleados/consultar/:Filtro', async (req, res) => {
+  try {
+    const filtro = req.params.Filtro;
+
+    if(!req.session || !req.session.userId){
+      return res.status(401).json({ error: 'No estás autenticado' });
     }
+
+    const userId = req.session.userId;
+    const userIP = req.ip;
+
+    const empleados = await consultarEmpleado(filtro, userId, userIP);
+
+    if(!empleados || empleados.length === 0){
+      return res.status(404).json({ error: 'No se encontró ningún empleado' });
+    }
+
+    res.json(empleados);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Error al consultar empleado' });
+  }
 });
+
 
 router.delete('/empleados/borrar/:id', async (req, res) => {
     try {

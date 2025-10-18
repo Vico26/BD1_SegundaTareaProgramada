@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Consultar Empleado</title>
+<style>
+    *{margin:0;padding:0;box-sizing:border-box;font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;}
+    body{background:linear-gradient(135deg,#6a11cb 0%,#2575fc 100%);min-height:100vh;display:flex;justify-content:center;align-items:flex-start;padding:20px;}
+    .container{background-color:white;border-radius:12px;box-shadow:0 10px 30px rgba(0,0,0,0.2);width:100%;max-width:600px;padding:30px;margin-top:30px;}
+    h1{color:#333;text-align:center;margin-bottom:20px;font-size:24px;font-weight:600;}
+    .form-group{margin-bottom:15px;}
+    label{display:block;margin-bottom:5px;font-weight:500;color:#555;}
+    input{width:100%;padding:10px;border:1px solid #ddd;border-radius:6px;font-size:16px;}
+    input:focus{outline:none;border-color:#4a90e2;box-shadow:0 0 0 2px rgba(74,144,226,0.2);}
+    button{padding:10px 15px;border:none;border-radius:6px;font-size:16px;font-weight:500;cursor:pointer;background-color:#4a90e2;color:white;transition:all 0.3s;}
+    button:hover{background-color:#3a7bc8;}
+    table{width:100%;border-collapse:collapse;margin-top:20px;}
+    th,td{border:1px solid #ccc;padding:10px;text-align:center;}
+    th{background-color:#007bff;color:white;}
+    .error{color:#e74c3c;margin-top:10px;text-align:center;}
+</style>
+</head>
+<body>
+<div class="container">
+    <h1>Consultar Empleado</h1>
+    <form id="consultaForm">
+        <div class="form-group">
+            <label for="filtro">Documento o nombre:</label>
+            <input type="text" id="filtro" placeholder="Ingrese documento o nombre" required>
+        </div>
+        <button type="submit">Consultar</button>
+    </form>
+    <div id="error" class="error"></div>
+    <table id="tablaEmpleados" style="display:none;">
+        <thead>
+            <tr>
+                <th>Valor Documento Identidad</th>
+                <th>Nombre</th>
+                <th>Puesto</th>
+                <th>Saldo</th>
+            </tr>
+        </thead>
+        <tbody></tbody>
+    </table>
+</div>
+
+<script>
+document.getElementById('consultaForm').addEventListener('submit', async function(e){
+    e.preventDefault();
+    const filtro = document.getElementById('filtro').value.trim();
+    const errorDiv = document.getElementById('error');
+    const tabla = document.getElementById('tablaEmpleados');
+    const tbody = tabla.querySelector('tbody');
+    
+    errorDiv.textContent = '';
+    tbody.innerHTML = '';
+    tabla.style.display = 'none';
+    
+    if(!filtro){
+        errorDiv.textContent = 'Ingrese un valor para buscar.';
+        return;
+    }
+    
+    try{
+        // Solo envías el filtro, el backend obtiene usuario e IP
+        const res = await fetch(`/empleados/consultar/${encodeURIComponent(filtro)}`);
+        
+        if(!res.ok){
+            const data = await res.json();
+            throw new Error(data.error || 'Error al consultar empleado');
+        }
+
+        const empleados = await res.json();
+
+        if(!Array.isArray(empleados) || empleados.length === 0){
+            errorDiv.textContent = 'No se encontró ningún empleado.';
+            return;
+        }
+
+        empleados.forEach(emp => {
+            const fila = `<tr>
+                <td>${emp['ValorDocumentoIdentidad'] || emp['Documento'] || ''}</td>
+                <td>${emp['Nombre'] || ''}</td>
+                <td>${emp['NombrePuesto'] || emp['Puesto'] || ''}</td>
+                <td>${emp['Saldo'] || emp['SaldoVacaciones'] || 0}</td>
+            </tr>`;
+            tbody.innerHTML += fila;
+        });
+
+        tabla.style.display = 'table';
+    } catch(err){
+        console.error(err);
+        errorDiv.textContent = err.message;
+    }
+});
+</script>
+</body>
+</html>
+
