@@ -1,5 +1,4 @@
 const{sql,config}=require('./db');  //importacion del modulo de la base de datos
-const { obtenerEmpleados } = require('./obtenerEmpleados');
 async function actualizarEmpleado(valorDocumentoIdentidad,nuevoValorDocumentoIdentidad,nuevoNombre,
     nuevoPuesto,PsotByUser,PostInIP,CodigoError){  //funcion para actualizar un empleado
     try{
@@ -19,4 +18,4 @@ async function actualizarEmpleado(valorDocumentoIdentidad,nuevoValorDocumentoIde
         console.log(error);
     }  }
     module.exports={actualizarEmpleado};  //exportacion del modulo para ser utilizado en otros archivos
-    //actualizarEmpleado('94377996', null, 'Rosario Tijeras Roldang', null, 6, '120.60.29.65');
+    //actualizarEmpleado('94377996','94377222',null,null,'6','120.60.29.65');

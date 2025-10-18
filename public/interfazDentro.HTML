@@ -55,13 +55,8 @@
       cursor: pointer;
     }
 
-    .filter-group button {
-      background-color: #007bff;
-    }
-
-    .insert-button {
-      background-color: #28a745;
-    }
+    .filter-group button { background-color: #007bff; }
+    .insert-button { background-color: #28a745; }
     .logOut-button {
       background-color: #e41553;
       padding: 10px 20px;
@@ -98,13 +93,12 @@
     }
 
     .consultar { background-color: #17a2b8; }
-    .actualizar { background-color: #ffc107; }
+    .actualizar { background-color: #ffc107; color:#000; }
     .eliminar { background-color: #dc3545; }
     .movimientos { background-color: #6f42c1; }
 
-    .action-buttons button:hover {
-      opacity: 0.8;
-    }
+    .action-buttons button:hover { opacity: 0.8; }
+
     .modal{
       display:none;
       position:fixed;
@@ -162,153 +156,161 @@
           <th>Acciones</th>
         </tr>
       </thead>
-      <tbody id="tabla-empleados">
-        <!-- Meter datos con unmostrar  -->
-      </tbody>
+      <tbody id="tabla-empleados"></tbody>
     </table>
   </div>
 
   <div id="modalInsertar" class="modal">
     <div class="modal-content">
-      <h3>Opciones para insertar: </h3>
+      <h3>Opciones para insertar:</h3>
       <button class="empleado" onclick="insertarEmpleadoBttn()">Insertar Empleado</button>
       <button class="movimiento" onclick="insertarMovimientoBttn()">Insertar Movimiento</button>
       <button class="cerrar" onclick="cerrarModal()">Cerrar</button>
+    </div>
   </div>
-  <button class="consultar" onclick="consultarEmpleado('${emp.ValorDocumentoIdentidad}')">Consultar</button>
+
   <script>
-    //  cambiar por datos reales desde base de datos)
+    // Mostrar empleados
     function mostrarEmpleados(lista) {
-  const tbody = document.getElementById('tabla-empleados');
-  tbody.innerHTML = ''; // Limpiar tabla
-  lista.forEach(emp => {
-    const fila = `
-      <tr>
-        <td>${emp.ValorDocumentoIdentidad}</td>
-        <td>${emp.Nombre}</td>
-        <td>${emp.Puesto}</td>
-        <td class="action-buttons">
-          <button class="consultar" onclick="consultarEmpleado('${emp.ValorDocumentoIdentidad}')">Consultar</button>
-          <button class="actualizar">Actualizar</button>
-          <button class="eliminar">Eliminar</button>
-          <button class="movimientos">Movimientos</button>
-        </td>
-      </tr>`;
-    tbody.innerHTML += fila;
-  });
-}
+      const tbody = document.getElementById('tabla-empleados');
+      tbody.innerHTML = '';
+      lista.forEach(emp => {
+        const fila = `
+          <tr>
+            <td>${emp.ValorDocumentoIdentidad}</td>
+            <td>${emp.Nombre}</td>
+            <td>${emp.Puesto}</td>
+            <td class="action-buttons">
+              <button class="consultar" onclick="consultarEmpleado('${emp.ValorDocumentoIdentidad}')">Consultar</button>
+              <button class="actualizar" onclick="ActulizarBoton('${emp.ValorDocumentoIdentidad}')">Actualizar</button>
+              <button class="eliminar">Eliminar</button>
+              <button class="movimientos">Movimientos</button>
+            </td>
+          </tr>`;
+        tbody.innerHTML += fila;
+      });
+    }
 
-
+    // Filtrar empleados
     function filtrarEmpleados() {
       const filtro = document.getElementById('filtro').value.trim().toLowerCase();
-
-      if (!filtro) {
-        mostrarEmpleados(empleados); // Si vacío, mostrar todos
-        return;
-      }
+      if (!filtro) { mostrarEmpleados(empleados); return; }
 
       let filtrados = [];
-
       if (/^[a-zA-Z\s]+$/.test(filtro)) {
-        // Solo letras o espacios → filtrar por nombre
-        filtrados = empleados.filter(emp =>
-          emp.nombre.toLowerCase().includes(filtro)
-        );
+        filtrados = empleados.filter(emp => emp.Nombre.toLowerCase().includes(filtro));
       } else if (/^\d+$/.test(filtro)) {
-        // Solo números → filtrar por documento (ID)
-        filtrados = empleados.filter(emp =>
-          emp.id.includes(filtro)
-        );
+        filtrados = empleados.filter(emp => emp.ValorDocumentoIdentidad.includes(filtro));
       } else {
         alert('Por favor ingresa solo letras o solo números para filtrar.');
         return;
       }
-
       mostrarEmpleados(filtrados);
     }
+
+    // Modal insertar
     function abrirModal() { document.getElementById('modalInsertar').style.display = 'flex'; }
     function cerrarModal() { document.getElementById('modalInsertar').style.display = 'none'; }
-    function insertarEmpleadoBttn(){ cerrarModal();
-      window.open('insertarEmpleado.html','popup','width=600,height=400');}
-    function insertarMovimientoBttn(){ cerrarModal();
-      window.open('insertarMovimiento.html','popup','width=600,height=400');}
 
-   
+    function insertarEmpleadoBttn(){
+      cerrarModal();
+      window.open('insertarEmpleado.html','popup','width=600,height=400');
+    }
+    function insertarMovimientoBttn(){
+      cerrarModal();
+      window.open('insertarMovimiento.html','popup','width=600,height=400');
+    }
+
+    // 🚀 Ventana de actualización (nombre correcto)
+    function ActulizarBoton(ValorDocumentoIdentidad){
+      const ancho = 600;
+      const alto = 500;
+      const x = (screen.width / 2) - (ancho / 2);
+      const y = (screen.height / 2) - (alto / 2);
+
+      // 👇 El nombre del archivo es con el mismo typo: actulizarEmpleado.html
+      const popup = window.open('ActulizarBoton.html', 'ActulizarBoton',
+        `width=${ancho},height=${alto},left=${x},top=${y}`);
+
+      popup.onload = () => {
+        if (popup && popup.document) {
+          const input = popup.document.getElementById('valorDocumentoIdentidad');
+          if (input) input.value = ValorDocumentoIdentidad;
+        }
+      };
+    }
+
+    // Logout
     function logOut() {
-  const usuario = localStorage.getItem('usuario'); // o de donde lo tengas guardado
-  fetch('/logout', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ Usuario: usuario }),
-    credentials: 'include'
-  })
-  .then(response => {
-    if (response.ok) {
-      localStorage.removeItem('usuario');
-      window.location.href = 'index.html';
-    } else {
-      alert('Error al cerrar sesión.');
-    }
-  })
-  .catch(error => console.error('Error:', error));
-}
-  async function obtenerEmpleados() {
-    try{
-      const res= await fetch('/empleados',{
-        method:'GET',
-        headers:{'Content-Type':'application/json'},
-        credentials:'include'
-      });
-      if(!res) throw new Error('Error al obtener empleados');
-      const empleados =await res.json();
-      mostrarEmpleados(empleados);
-    }catch(err){
-      console.error(err);
-    }
-  }
-
-  async function consultarEmpleado(filtro) {
-  try {
-    const res = await fetch(`/empleados/consultar/${encodeURIComponent(filtro)}`, {
-      method: 'GET',
-      headers: { 'Content-Type': 'application/json' },
-      credentials: 'include'
-    });
-
-    if (!res.ok) {
-      const data = await res.json();
-      throw new Error(data.error || 'No se pudo consultar el empleado');
+      const usuario = localStorage.getItem('usuario');
+      fetch('/logout', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ Usuario: usuario }),
+        credentials: 'include'
+      })
+      .then(response => {
+        if (response.ok) {
+          localStorage.removeItem('usuario');
+          window.location.href = 'index.html';
+        } else {
+          alert('Error al cerrar sesión.');
+        }
+      })
+      .catch(error => console.error('Error:', error));
     }
 
-    const empleadoData = await res.json();
-
-    // Determinar si es array o objeto
-    const emp = Array.isArray(empleadoData) ? empleadoData[0] : empleadoData;
-
-    if (!emp) {
-      alert('Empleado no encontrado');
-      return;
+    // Obtener empleados
+    async function obtenerEmpleados() {
+      try {
+        const res= await fetch('/empleados',{
+          method:'GET',
+          headers:{'Content-Type':'application/json'},
+          credentials:'include'
+        });
+        if(!res.ok) throw new Error('Error al obtener empleados');
+        const empleadosData = await res.json();
+        window.empleados = empleadosData;
+        mostrarEmpleados(empleadosData);
+      } catch(err) {
+        console.error(err);
+      }
     }
 
-    // Abrir modal y mostrar información
-    abrirModal();
-    const modalContent = document.querySelector('#modalInsertar .modal-content');
-    modalContent.innerHTML = `
-      <h3>Empleado: ${emp.Nombre}</h3>
-      <p><strong>Documento:</strong> ${emp.DocumentoIdentidad}</p>
-      <p><strong>Puesto:</strong> ${emp["Nombre del Puesto"]}</p>
-      <p><strong>Saldo:</strong> ${emp["Saldo de vacaciones"] !== undefined ? emp["Saldo de vacaciones"] : 'N/A'}</p>
-      <button class="cerrar" onclick="cerrarModal()">Cerrar</button>
-    `;
-  } catch (err) {
-    console.error(err);
-    alert(err.message);
-  }
-}
+    // Consultar empleado
+    async function consultarEmpleado(filtro) {
+      try {
+        const res = await fetch(`/empleados/consultar/${encodeURIComponent(filtro)}`, {
+          method: 'GET',
+          headers: { 'Content-Type': 'application/json' },
+          credentials: 'include'
+        });
 
-    // Llamar a obtener empleados al cargar la página
+        if (!res.ok) {
+          const data = await res.json();
+          throw new Error(data.error || 'No se pudo consultar el empleado');
+        }
+
+        const empleadoData = await res.json();
+        const emp = Array.isArray(empleadoData) ? empleadoData[0] : empleadoData;
+        if (!emp) { alert('Empleado no encontrado'); return; }
+
+        abrirModal();
+        const modalContent = document.querySelector('#modalInsertar .modal-content');
+        modalContent.innerHTML = `
+          <h3>Empleado: ${emp.Nombre}</h3>
+          <p><strong>Documento:</strong> ${emp.ValorDocumentoIdentidad}</p>
+          <p><strong>Puesto:</strong> ${emp.Puesto}</p>
+          <button class="cerrar" onclick="cerrarModal()">Cerrar</button>
+        `;
+      } catch (err) {
+        console.error(err);
+        alert(err.message);
+      }
+    }
+
+    // Iniciar
     obtenerEmpleados();
   </script>
-
 </body>
 </html>

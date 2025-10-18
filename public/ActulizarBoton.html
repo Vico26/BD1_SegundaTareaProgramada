@@ -61,12 +61,12 @@
     }
 
     async function enviarActualizacion(payload) {
-      console.groupCollapsed('%c[PUT] /api/empleados/actualizar', 'color:#4a90e2');
+      console.groupCollapsed('%c[PUT] /empleados/actualizar', 'color:#4a90e2');
       console.log('Payload:', payload);
 
       let res, data = null, text = '';
       try {
-        res = await fetch('http://localhost:3000/api/empleados/actualizar', {
+        res = await fetch('http://localhost:3000/empleados/actualizar', {
           method: 'PUT',
           credentials: 'include', // ENVÍA COOKIES DE SESIÓN
           headers: { 'Content-Type': 'application/json' },
