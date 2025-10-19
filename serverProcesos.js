@@ -180,11 +180,17 @@ router.delete('/empleados/borrar/:id', async (req, res) => {
         const PostByUser = req.session?.userId;
         const PostInIP = req.headers['x-forwarded-for'] || req.connection.remoteAddress || req.ip;
 
+        console.log('ID recibido:', valorDocId);
+        console.log('Usuario en sesión:', PostByUser);
+        console.log('IP detectada:', PostInIP);
+
         if (!valorDocId || !PostByUser || PostByUser === 0 || !PostInIP) {
             return res.status(400).json({ error: 'Faltan datos obligatorios' });
         }
 
         const resultado = await borrarEmpleado(valorDocId, PostByUser, PostInIP);
+        console.log('Resultado borrarEmpleado:', resultado);
+
         const CodigoError = resultado?.CodigoError ?? -1;
 
         if (CodigoError !== 0) {
