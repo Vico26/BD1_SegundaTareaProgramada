@@ -29,7 +29,7 @@
       justify-content: space-between;
       align-items: center;
       margin-bottom: 20px;
-      flex-wrap: wrap;
+      flex-wrap: wrap.
     }
 
     .filter-group {
@@ -99,22 +99,24 @@
 
     .action-buttons button:hover { opacity: 0.8; }
 
+    /* Modal ampliado para cubrir toda la vista */
     .modal{
       display:none;
       position:fixed;
       z-index:1000;
-      top:0;left:0;
-      width:100%;
-      height:100%;
-      background:rgba(0,0,0,0.5);
+      inset:0;
+      background:rgba(0,0,0,0.65);
       justify-content:center;
       align-items:center;
+      padding: 20px;
     }
     .modal-content{
       background-color: antiquewhite;
       padding:20px;
       border-radius:8px;
-      width:300px;
+      width:min(900px, 92vw);
+      max-height: 85vh;
+      overflow:auto;
       text-align: center;
       box-shadow:0 0 10px rgba(0,0,0,0.3);
     }
@@ -170,9 +172,10 @@
   </div>
 
   <div id="modalConsultar" class="modal">
-  <div class="modal-content" id="consultaContent">
+    <div class="modal-content" id="consultaContent">
+    </div>
   </div>
-</div>
+
   <script>
     // Mostrar empleados
     function mostrarEmpleados(lista) {
@@ -225,14 +228,13 @@
       window.open('insertarMovimiento.html','popup','width=600,height=400');
     }
 
-    //Ventana de actualización (nombre correcto)
+    //Ventana de actualización
     function ActulizarBoton(ValorDocumentoIdentidad){
       const ancho = 600;
       const alto = 500;
       const x = (screen.width / 2) - (ancho / 2);
       const y = (screen.height / 2) - (alto / 2);
 
-      // 👇 El nombre del archivo es con el mismo typo: actulizarEmpleado.html
       const popup = window.open('ActulizarBoton.html', 'ActulizarBoton',
         `width=${ancho},height=${alto},left=${x},top=${y}`);
 
@@ -282,62 +284,186 @@
     }
 
     // Consultar empleado
-   async function consultarEmpleado(filtro) {
-  try {
-    const res = await fetch(`/empleados/consultar/${encodeURIComponent(filtro)}`, {
-      method: 'GET',
-      headers: { 'Content-Type': 'application/json' },
-      credentials: 'include'
-    });
-
-    const data = await res.json(); // solo parsea una vez
-
-    if (!res.ok) throw new Error(data.error || 'No se pudo consultar el empleado');
-
-    const emp = Array.isArray(data) ? data[0] : data;
-
-    const modal = document.getElementById('modalConsultar');
-    const modalContent = document.getElementById('consultaContent');
-
-    modalContent.innerHTML = `
-      <h3>Empleado: ${emp.Nombre}</h3>
-      <p><strong>Documento:</strong> ${emp.DocumentoIdentidad}</p>
-      <p><strong>Puesto:</strong> ${emp["Nombre del Puesto"]}</p>
-      <p><strong>Saldo:</strong> ${emp["Saldo de vacaciones"]?? 'N/A'}</p>
-      <button class="cerrar" onclick="document.getElementById('modalConsultar').style.display='none'">Cerrar</button>
-    `;
-    modal.style.display = 'flex';
-  } catch (err) {
-    console.error(err);
-    alert(err.message);
-  }
-}
-async function eliminarEmpleado(ValorDocumentoIdentidad) {
-    if (!confirm(`¿Seguro que quieres eliminar al empleado con documento ${ValorDocumentoIdentidad}?`)) return;
-
-    try {
-        const res = await fetch(`/empleados/borrar/${ValorDocumentoIdentidad}`, {
-            method: 'DELETE',
-            headers: { 'Content-Type': 'application/json' },
-            credentials: 'include' // importante para enviar cookies de sesión
+    async function consultarEmpleado(filtro) {
+      try {
+        const res = await fetch(`/empleados/consultar/${encodeURIComponent(filtro)}`, {
+          method: 'GET',
+          headers: { 'Content-Type': 'application/json' },
+          credentials: 'include'
         });
 
-        const data = await res.json(); // siempre parseamos JSON
+        const data = await res.json();
+
+        if (!res.ok) throw new Error(data.error || 'No se pudo consultar el empleado');
+
+        const emp = Array.isArray(data) ? data[0] : data;
+
+        const modal = document.getElementById('modalConsultar');
+        const modalContent = document.getElementById('consultaContent');
+
+        modalContent.innerHTML = `
+          <h3>Empleado: ${emp.Nombre}</h3>
+          <p><strong>Documento:</strong> ${emp.DocumentoIdentidad}</p>
+          <p><strong>Puesto:</strong> ${emp["Nombre del Puesto"]}</p>
+          <p><strong>Saldo:</strong> ${emp["Saldo de vacaciones"]?? 'N/A'}</p>
+          <button class="cerrar" onclick="document.getElementById('modalConsultar').style.display='none'">Cerrar</button>
+        `;
+        modal.style.display = 'flex';
+      } catch (err) {
+        console.error(err);
+        alert(err.message);
+      }
+    }
+
+    async function eliminarEmpleado(ValorDocumentoIdentidad) {
+      if (!confirm(`¿Seguro que quieres eliminar al empleado con documento ${ValorDocumentoIdentidad}?`)) return;
+
+      try {
+        const res = await fetch(`/empleados/borrar/${ValorDocumentoIdentidad}`, {
+          method: 'DELETE',
+          headers: { 'Content-Type': 'application/json' },
+          credentials: 'include'
+        });
+
+        const data = await res.json();
 
         if (!res.ok) {
-            throw new Error(data.error || 'No se pudo eliminar el empleado');
+          throw new Error(data.error || 'No se pudo eliminar el empleado');
         }
 
         alert('Empleado eliminado correctamente');
-        obtenerEmpleados(); // Refresca tabla
-    } catch (err) {
+        obtenerEmpleados();
+      } catch (err) {
         console.error(err);
         alert(err.message);
+      }
     }
-}
 
     // Iniciar
     obtenerEmpleados();
+
+    /* --- Botón "Movimientos" -> modal con info + lista real de movimientos (sin textos de error/estado) --- */
+    document.getElementById('tabla-empleados')
+      .addEventListener('click', (e) => {
+        const btn = e.target.closest('button.movimientos');
+        if (!btn) return;
+
+        const row = btn.closest('tr');
+        const doc = row?.cells?.[0]?.textContent?.trim();
+        const nombre = row?.cells?.[1]?.textContent?.trim();
+        const puesto = row?.cells?.[2]?.textContent?.trim();
+
+        if (!doc) {
+          // Mantengo esta alerta fuera del bloque Movimientos (no es error del fetch)
+          alert('No se pudo determinar el documento del empleado.');
+          return;
+        }
+
+        const empObj = (window.empleados || []).find(e => String(e.ValorDocumentoIdentidad) === doc);
+        const saldo = (empObj && (empObj["Saldo de vacaciones"] ?? empObj.SaldoVacaciones)) || 'N/A';
+
+        const modal = document.getElementById('modalConsultar');
+        const modalContent = document.getElementById('consultaContent');
+
+        modalContent.innerHTML = `
+          <h3>Movimientos — Empleado seleccionado</h3>
+          <table style="width:100%; border-collapse: collapse;">
+            <thead>
+              <tr>
+                <th>Documento</th>
+                <th>Nombre</th>
+                <th>Puesto</th>
+                <th>Saldo Vacaciones</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>${doc}</td>
+                <td>${nombre || ''}</td>
+                <td>${puesto || ''}</td>
+                <td>${saldo}</td>
+              </tr>
+            </tbody>
+          </table>
+
+          <h4 style="margin-top:16px;">Movimientos</h4>
+          <div id="movimientos-container" style="min-height:40px; text-align:center; padding:8px;"></div>
+
+          <div style="margin-top:12px;">
+            <button class="cerrar" onclick="document.getElementById('modalConsultar').style.display='none'">Cerrar</button>
+          </div>
+        `;
+        modal.style.display = 'flex';
+
+        cargarYRenderizarMovimientos(doc).catch(() => {
+          // Silencioso: no mostrar nada
+        });
+      });
+
+    async function cargarYRenderizarMovimientos(doc) {
+      const cont = document.getElementById('movimientos-container');
+      if (!cont) return;
+
+      try {
+        const res = await fetch(`/empleados/movimientos/${encodeURIComponent(doc)}`, {
+          method: 'GET',
+          headers: { 'Accept': 'application/json' },
+          credentials: 'include',
+        });
+        const data = await res.json();
+
+        if (!res.ok) {
+          // Silencioso: vacío
+          cont.innerHTML = '';
+          return;
+        }
+
+        if (!Array.isArray(data) || data.length === 0) {
+          // Silencioso: vacío
+          cont.innerHTML = '';
+          return;
+        }
+
+        cont.innerHTML = crearTablaMovimientosHTML(data);
+      } catch {
+        // Silencioso: vacío
+        cont.innerHTML = '';
+      }
+    }
+
+    function crearTablaMovimientosHTML(movs) {
+      const head = `
+        <thead>
+          <tr>
+            <th>Fecha</th>
+            <th>Tipo</th>
+            <th>Descripción</th>
+            <th>Monto</th>
+            <th>Usuario</th>
+          </tr>
+        </thead>`;
+
+      const rows = movs.map(m => `
+        <tr>
+          <td>${fmtFecha(m.fecha)}</td>
+          <td>${safe(m.tipo)}</td>
+          <td>${safe(m.descripcion)}</td>
+          <td>${fmtMoneda(m.monto)}</td>
+          <td>${safe(m.usuario)}</td>
+        </tr>`).join('');
+
+      return `<table style="width:100%; border-collapse: collapse;">${head}<tbody>${rows}</tbody></table>`;
+    }
+
+    // Utilidades
+    function safe(v){ return v == null ? '' : String(v); }
+    function fmtFecha(v){
+      try{ const d = new Date(v); return isNaN(d) ? safe(v) : d.toLocaleString(); } catch { return safe(v); }
+    }
+    function fmtMoneda(v, currency='USD', locale){
+      const n = Number(v); return isNaN(n) ? safe(v) : new Intl.NumberFormat(locale, {style:'currency', currency}).format(n);
+    }
+    /* --- FIN AÑADIDO --- */
   </script>
 </body>
 </html>
