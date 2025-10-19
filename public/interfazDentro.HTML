@@ -282,7 +282,7 @@
     }
 
     // Consultar empleado
-     async function consultarEmpleado(filtro) {
+   async function consultarEmpleado(filtro) {
   try {
     const res = await fetch(`/empleados/consultar/${encodeURIComponent(filtro)}`, {
       method: 'GET',
@@ -290,20 +290,12 @@
       credentials: 'include'
     });
 
-    if (!res.ok) {
-      const data = await res.json();
-      throw new Error(data.error || 'No se pudo consultar el empleado');
-    }
+    const data = await res.json(); // solo parsea una vez
 
-    const empleadoData = await res.json();
-    const emp = Array.isArray(empleadoData) ? empleadoData[0] : empleadoData;
+    if (!res.ok) throw new Error(data.error || 'No se pudo consultar el empleado');
 
-    if (!emp) {
-      alert('Empleado no encontrado');
-      return;
-    }
+    const emp = Array.isArray(data) ? data[0] : data;
 
-    // Mostrar el modal exclusivo de CONSULTA
     const modal = document.getElementById('modalConsultar');
     const modalContent = document.getElementById('consultaContent');
 
@@ -311,10 +303,9 @@
       <h3>Empleado: ${emp.Nombre}</h3>
       <p><strong>Documento:</strong> ${emp.DocumentoIdentidad}</p>
       <p><strong>Puesto:</strong> ${emp["Nombre del Puesto"]}</p>
-      <p><strong>Saldo:</strong> ${emp["Saldo de vacaciones"] !== undefined ? emp["Saldo de vacaciones"] : 'N/A'}</p>
+      <p><strong>Saldo:</strong> ${emp["Saldo de vacaciones"]?? 'N/A'}</p>
       <button class="cerrar" onclick="document.getElementById('modalConsultar').style.display='none'">Cerrar</button>
     `;
-
     modal.style.display = 'flex';
   } catch (err) {
     console.error(err);
