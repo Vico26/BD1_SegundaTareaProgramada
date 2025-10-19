@@ -21,4 +21,4 @@ async function borrarEmpleado(valorDocId, PostByUser, PostInIP) {
 }
 
 module.exports = { borrarEmpleado };
-borrarEmpleado('94377996',1,'177.104.198.156');
+//borrarEmpleado('94377996',1,'177.104.198.156');
