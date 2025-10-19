@@ -1,0 +1,134 @@
+<!-- /public/index.html -->
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <title>Consulta por Documento de Identidad</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <style>
+    :root { --radius: 12px; --border:#e5e7eb; --muted:#6b7280; --text:#111827; }
+    *{ box-sizing:border-box; }
+    body{ margin:0; font-family:system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, Arial; color:var(--text); background:#fafafa;}
+    .container{ max-width:980px; margin:40px auto; padding:0 16px;}
+    .card{ background:#fff; border:1px solid var(--border); border-radius:var(--radius); box-shadow:0 1px 2px rgba(0,0,0,.04);}
+    .header{ padding:20px; border-bottom:1px solid var(--border); display:grid; gap:12px;}
+    .title{ margin:0; font-size:20px; font-weight:700;}
+    form{ display:flex; gap:10px; flex-wrap:wrap; }
+    input[type="search"]{ flex:1; min-width:260px; padding:10px 12px; border:1px solid var(--border); border-radius:10px; outline:none; font-size:14px;}
+    input[type="search"]:focus{ border-color:#9ca3af; box-shadow:0 0 0 3px rgba(156,163,175,.2);}
+    button{ padding:10px 14px; border:1px solid var(--border); background:#111827; color:#fff; border-radius:10px; cursor:pointer; font-size:14px;}
+    button:disabled{ opacity:.6; cursor:not-allowed;}
+    .hint{ color:var(--muted); font-size:12px;}
+    .body{ padding:0 20px 16px 20px; overflow:auto;}
+    table{ width:100%; border-collapse:collapse; background:#fff; }
+    caption{ text-align:left; padding:16px 0; font-weight:700; }
+    thead th{ text-align:left; font-size:13px; color:var(--muted); padding:10px 12px; border-top:1px solid var(--border); border-bottom:1px solid var(--border);}
+    tbody td{ padding:12px; border-bottom:1px solid var(--border); font-size:14px;}
+    tbody tr:hover{ background:#fafafa;}
+    .muted{ color:var(--muted); }
+    .badge{ display:inline-block; padding:2px 8px; border-radius:999px; border:1px solid var(--border); font-size:12px; background:#f9fafb;}
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="card">
+      <div class="header">
+        <h1 class="title">Consulta por documento</h1>
+        <form id="searchForm">
+          <input id="docInput" type="search" inputmode="numeric" placeholder="Ponga el documento de identidad a buscar" autocomplete="off" />
+          <button id="searchBtn" type="submit">Buscar</button>
+        </form>
+        <div class="hint">Ejemplo: 21086955</div>
+      </div>
+
+      <div id="statusLine" class="badge" style="margin:12px 20px;">Esperando búsqueda…</div>
+
+      <div class="body">
+        <table id="tbl">
+          <caption>Movimientos del usuario</caption>
+          <thead>
+            <tr>
+              <th scope="col">DocumentoIdentidad</th>
+              <th scope="col">Nombre</th>
+              <th scope="col">Nombre del Puesto</th>
+              <th scope="col">Saldo de vacaciones</th>
+            </tr>
+          </thead>
+          <tbody id="tbody">
+            <tr><td colspan="4" class="muted">Sin datos. Realice una búsqueda.</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Datos de ejemplo. Reemplace por su fuente real (API/JSON/BD).
+    const REGISTROS = [
+      {
+        "DocumentoIdentidad": "21086955",
+        "Nombre": "Pablo Escobar",
+        "Nombre del Puesto": "Albañil",
+        "Saldo de vacaciones": 0
+      },
+      {
+        "DocumentoIdentidad": "12345678",
+        "Nombre": "María Rodríguez",
+        "Nombre del Puesto": "Contadora",
+        "Saldo de vacaciones": 5
+      },
+      {
+        "DocumentoIdentidad": "87654321",
+        "Nombre": "Juan Pérez",
+        "Nombre del Puesto": "Supervisor",
+        "Saldo de vacaciones": 12
+      }
+    ];
+
+    const $ = (s, c=document)=>c.querySelector(s);
+    const sanitize = (s)=>String(s).replace(/[&<>"']/g, (c)=>({ "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[c]));
+
+    function buscarPorDocumento(docRaw){
+      const doc = String(docRaw || "").trim();
+      // Coincidencia exacta por documento.
+      return REGISTROS.filter(r => String(r["DocumentoIdentidad"]).trim() === doc);
+    }
+
+    function renderTabla(rows){
+      const tbody = $("#tbody");
+      if(!rows || rows.length === 0){
+        tbody.innerHTML = `<tr><td colspan="4" class="muted">No se encontró usuario para ese documento.</td></tr>`;
+        return;
+      }
+      tbody.innerHTML = rows.map(r => `
+        <tr>
+          <td>${sanitize(r["DocumentoIdentidad"])}</td>
+          <td>${sanitize(r["Nombre"])}</td>
+          <td>${sanitize(r["Nombre del Puesto"])}</td>
+          <td>${sanitize(new Intl.NumberFormat("es-CR", { maximumFractionDigits: 0 }).format(r["Saldo de vacaciones"]))}</td>
+        </tr>
+      `).join("");
+    }
+
+    function onSubmit(e){
+      e.preventDefault();
+      const doc = $("#docInput").value;
+      if(!doc.trim()){
+        $("#statusLine").textContent = "Ingrese un documento de identidad para buscar.";
+        return;
+      }
+      const resultados = buscarPorDocumento(doc);
+      $("#statusLine").innerHTML = resultados.length
+        ? `Resultados para documento: <strong>${sanitize(doc)}</strong>`
+        : `Sin resultados para documento: <strong>${sanitize(doc)}</strong>`;
+      renderTabla(resultados);
+    }
+
+    function init(){
+      $("#searchForm").addEventListener("submit", onSubmit);
+      // Opcional: buscar al presionar Enter en el input (el submit ya lo hace).
+    }
+    document.addEventListener("DOMContentLoaded", init);
+  </script>
+</body>
+</html>

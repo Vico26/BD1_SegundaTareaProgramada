@@ -13,4 +13,4 @@ async function obtenerMovimientos(valorDocID){
     }
 }
 module.exports=obtenerMovimientos; //exportacion de la funcion para ser utilizada en otros archivos
-//obtenerMovimientos('6575299'); //llamada a la funcion para obtener los empleados
+//obtenerMovimientos('25381150'); //llamada a la funcion para obtener los empleados
