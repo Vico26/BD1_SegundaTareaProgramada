@@ -224,26 +224,30 @@ router.get('/empleados/movimientos/:valorDocId',async(req,res)=>{
     }
 });
 
-router.post('/empleados/movimientos',async(req,res)=>{
-    try{
-        const{valorDocIdenti,TipoMovimiento,Monto}=req.body;
-        const PostByUser=req.session.userId; 
-        const PostInIP=req.headers['x-forwarded-for'] || req.connection.remoteAddress||req.ip;
-        if(!valorDocIdenti||!TipoMovimiento||!Monto||!PostByUser){
-            return res.status(401).json({error:'Faltan datos obligatorios'});
+router.post('/movimientos', async (req, res) => {
+    try {
+        const { valorDocIdenti, TipoMovimiento, Monto } = req.body;
+        const PostByUser = req.session?.userId || 1; 
+        const PostInIP = req.headers['x-forwarded-for'] || req.connection.remoteAddress || req.ip;
+        console.log('Datos recibidos:', { valorDocIdenti, TipoMovimiento, Monto, PostByUser, PostInIP });
+        if (!valorDocIdenti || !TipoMovimiento || !Monto || !PostByUser || PostByUser === 0) {
+            return res.status(401).json({ error: 'Faltan datos obligatorios' });
         }
-        const resultado=await insertarMovimiento(valorDocIdenti,TipoMovimiento,Monto,PostByUser,PostInIP);
-        if(!resultado.success){
-            const errores=await obtenerErrores();
-            const descripcionError=errores.find(e=>e.CodigoError===resultado.CodigoError)?.Descripcion || 'Error desconocido';
-            return res.status(400).json({error:descripcionError, CodigoError:resultado.CodigoError});
+
+        const resultado = await insertarMovimiento(valorDocIdenti, TipoMovimiento, Monto, PostByUser, PostInIP);
+        if (!resultado.success) {
+            const errores = await obtenerErrores();
+            const descripcionError = errores.find(e => e.CodigoError === resultado.CodigoError)?.Descripcion || 'Error desconocido';
+            return res.status(400).json({ error: descripcionError, CodigoError: resultado.CodigoError });
         }
-        res.json({message:'Movimiento insertado correctamente'});
-    }catch(error){
+
+        res.json({ message: 'Movimiento insertado correctamente' });
+    } catch (error) {
         console.error('Error en /empleados/movimientos:', error);
         res.status(500).json({ error: 'Error interno del servidor' });
-    }  
+    }
 });
+
 
 /*Funciones extra*/ 
 router.get('/puestos', async (req, res) => {
@@ -257,14 +261,15 @@ router.get('/puestos', async (req, res) => {
     }
 });
 
-router.get('/tipoMovs',async(req,res)=>{ //Obtener empleados
-    try{
-        const tipoM=await obtenerTipoMov();
-        res.json(tipoM);
-    }
-    catch(error){
-        console.error('Error en /tipoMovs:', error);
-        res.status(500).json({ error: 'Error interno del servidor' });
-    }});
+router.get('/tipoMovs', async (req, res) => {
+  try {
+    const tipos = await obtenerTipoMov();
+    res.json(tipos);
+    console.log("Tipos de movimiento obtenidos:", tipos); // debug
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Error al obtener tipos de movimiento' });
+  }
+});
 
 module.exports=router;

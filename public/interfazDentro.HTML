@@ -29,7 +29,7 @@
       justify-content: space-between;
       align-items: center;
       margin-bottom: 20px;
-      flex-wrap: wrap.
+      flex-wrap: wrap;
     }
 
     .filter-group {
@@ -191,7 +191,7 @@
               <button class="consultar" onclick="consultarEmpleado('${emp.ValorDocumentoIdentidad}')">Consultar</button>
               <button class="actualizar" onclick="ActulizarBoton('${emp.ValorDocumentoIdentidad}')">Actualizar</button>
               <button class="eliminar" onclick="eliminarEmpleado('${emp.ValorDocumentoIdentidad}')">Eliminar</button>
-              <button class="movimientos">Movimientos</button>
+              <button class="movimientos" onclick="abrirMovimientos('${emp.ValorDocumentoIdentidad}')">Movimientos</button>
             </td>
           </tr>`;
         tbody.innerHTML += fila;
@@ -432,28 +432,37 @@
     }
 
     function crearTablaMovimientosHTML(movs) {
-      const head = `
-        <thead>
-          <tr>
-            <th>Fecha</th>
-            <th>Tipo</th>
-            <th>Descripción</th>
-            <th>Monto</th>
-            <th>Usuario</th>
-          </tr>
-        </thead>`;
+  const head = `
+    <thead>
+      <tr>
+        <th>valorDocumentoidentidad</th>
+        <th>Nombre</th>
+        <th>saldoVacaciones</th>
+        <th>Fecha</th>
+        <th>Monto</th>
+        <th>NuevoSaldo</th>
+        <th>UsuarioRegistro</th>
+        <th>PostInIP</th>
+        <th>PostTime</th>
+      </tr>
+    </thead>`;
 
-      const rows = movs.map(m => `
-        <tr>
-          <td>${fmtFecha(m.fecha)}</td>
-          <td>${safe(m.tipo)}</td>
-          <td>${safe(m.descripcion)}</td>
-          <td>${fmtMoneda(m.monto)}</td>
-          <td>${safe(m.usuario)}</td>
-        </tr>`).join('');
+  const rows = movs.map(m => `
+    <tr>
+      <td>${safe(m.valorDocumentoidentidad)}</td>
+      <td>${safe(m.Nombre)}</td>
+      <td>${safe(m.saldoVacaciones)}</td>
+      <td>${fmtFecha(m.Fecha)}</td>
+      <td>${fmtMoneda(m.Monto)}</td>
+      <td>${safe(m.NuevoSaldo)}</td>
+      <td>${safe(m.UsuarioRegistro)}</td>
+      <td>${safe(m.PostInIP)}</td>
+      <td>${fmtFecha(m.PostTime)}</td>
+    </tr>`).join('');
 
-      return `<table style="width:100%; border-collapse: collapse;">${head}<tbody>${rows}</tbody></table>`;
-    }
+  return `<table style="width:100%; border-collapse: collapse;">${head}<tbody>${rows}</tbody></table>`;
+}
+
 
     // Utilidades
     function safe(v){ return v == null ? '' : String(v); }
@@ -463,7 +472,7 @@
     function fmtMoneda(v, currency='USD', locale){
       const n = Number(v); return isNaN(n) ? safe(v) : new Intl.NumberFormat(locale, {style:'currency', currency}).format(n);
     }
-    /* --- FIN AÑADIDO --- */
+
   </script>
 </body>
 </html>

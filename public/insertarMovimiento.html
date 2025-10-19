@@ -1,87 +1,233 @@
-<!-- file: insertar-movimientos.html -->
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Insertar Movimientos</title>
-  <style>
-    * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
-    body { background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%); min-height: 100vh; display: flex; justify-content: center; align-items: center; padding: 20px; }
-    .container { background-color: #fff; border-radius: 12px; box-shadow: 0 10px 30px rgba(0,0,0,.2); width: 100%; max-width: 450px; padding: 30px; }
-    h1 { color: #333; text-align: center; margin-bottom: 30px; font-weight: 600; font-size: 24px; }
-    .form-group { margin-bottom: 20px; }
-    label { display: block; margin-bottom: 8px; font-weight: 500; color: #555; }
-    input, select { width: 100%; padding: 12px 15px; border: 1px solid #ddd; border-radius: 6px; font-size: 16px; transition: all .3s; }
-    input:focus, select:focus { outline: none; border-color: #4a90e2; box-shadow: 0 0 0 2px rgba(74,144,226,.2); }
-    .buttons { display: flex; gap: 15px; margin-top: 30px; }
-    button { flex: 1; padding: 12px; border: none; border-radius: 6px; font-size: 16px; font-weight: 500; cursor: pointer; transition: all .3s; }
-    .save-btn { background-color: #4a90e2; color: #fff; }
-    .save-btn:hover { background-color: #3a7bc8; transform: translateY(-2px); }
-    .back-btn { background-color: #f5f5f5; color: #333; }
-    .back-btn:hover { background-color: #e0e0e0; transform: translateY(-2px); }
-    .logo { text-align: center; margin-bottom: 20px; }
-    .logo i { font-size: 48px; color: #4a90e2; }
-  </style>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Insertar Movimientos (Debug)</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+  body { background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%); min-height: 100vh; display: flex; justify-content: center; align-items: center; padding: 20px; }
+  .container { background-color: #fff; border-radius: 12px; box-shadow: 0 10px 30px rgba(0,0,0,.2); width: 100%; max-width: 520px; padding: 30px; }
+  h1 { color: #333; text-align: center; margin-bottom: 20px; font-weight: 600; font-size: 20px; }
+  .form-group { margin-bottom: 14px; }
+  label { display: block; margin-bottom: 6px; font-weight: 500; color: #555; }
+  input, select { width: 100%; padding: 10px 12px; border: 1px solid #ddd; border-radius: 6px; font-size: 15px; }
+  .buttons { display:flex; gap:12px; margin-top:18px; }
+  button { flex:1; padding:10px; border:none; border-radius:6px; font-weight:600; cursor:pointer; }
+  .save-btn { background:#4a90e2; color:#fff; }
+  .back-btn { background:#f5f5f5; }
+  pre { background:#f3f4f6; padding:10px; border-radius:6px; max-height:160px; overflow:auto; font-size:13px; }
+  .debug { margin-top:12px; color:#333; font-size:13px; }
+</style>
 </head>
 <body>
-  <div class="container">
-    <div class="logo">
-      <span style="font-size: 48px;" aria-hidden="true"></span>
+<div class="container">
+  <h1>Insertar Movimientos (Debug)</h1>
+
+  <form id="movimientoForm">
+    <div class="form-group">
+      <label for="document">Valor documento identidad</label>
+      <input type="text" id="document" placeholder="Ingrese el número de documento" required />
     </div>
-    <h1>Insertar Movimientos</h1>
 
-    <form id="employeeForm" action="#" method="post">
-      <div class="form-group">
-        <label for="document">Valor documento identidad</label>
-        <input type="text" id="document" name="document" placeholder="Ingrese el número de documento" required />
-      </div>
+    <div class="form-group">
+      <label for="tipoMovimiento">Tipo de Movimiento</label>
+      <select id="tipoMovimiento" required>
+        <option value="" disabled selected>-- Cargando tipos --</option>
+      </select>
+    </div>
 
-      <div class="form-group">
-        <label for="name">Nombre completo</label>
-        <input type="text" id="name" name="name" placeholder="Ingrese el nombre completo" required />
-      </div>
+    <div class="form-group">
+      <label for="monto">Monto</label>
+      <input type="number" id="monto" placeholder="Ingrese el monto" required />
+    </div>
 
-      <div class="form-group">
-        <label for="position">Tipos de Movimientos</label>
-        <select id="position" name="position" required>
-          <option value="" disabled selected>Seleccione un Movimiento</option>
-        </select>
-      </div>
+    <div class="buttons">
+      <button type="submit" class="save-btn">Guardar</button>
+      <button type="button" class="back-btn" onclick="window.close()">Cancelar</button>
+    </div>
+  </form>
 
-      <div class="buttons">
-        <button type="submit" class="save-btn">Guardar</button>
-      </div>
-    </form>
+  <div class="debug">
+    <strong>Logs rápidos (abre la consola para más):</strong>
+    <ul>
+      <li id="logStatus">Estado: esperando...</li>
+    </ul>
+    <pre id="logArea">—</pre>
   </div>
+</div>
 
-  <script>
-    // Por qué: logs para validar datos recibidos y opciones renderizadas
-   async function cargarTipoMov() {
-    const select = document.getElementById('position');
+<script>
+(async function(){
+  const logStatus = id => document.getElementById('logStatus').textContent = 'Estado: ' + id;
+  const logArea = msg => {
+    const el = document.getElementById('logArea');
+    el.textContent = typeof msg === 'string' ? msg : JSON.stringify(msg, null, 2);
+    console.log(msg);
+  };
+
+  let tiposGlobal = [];
+  let idField = null;    // nombre del campo id detectado
+  let nameField = null;  // nombre del campo nombre detectado
+
+  async function cargarTiposMov() {
+    logStatus('Cargando tipos de movimiento...');
+    logArea('Solicitando /tipoMovs ...');
     try {
-        const res = await fetch('/tipoMovs'); // 
-        if (!res.ok) throw new Error('Error HTTP: ' + res.status);
+      const res = await fetch('/tipoMovs', { credentials: 'include' });
+      logArea({ fetchStatus: res.status, ok: res.ok });
+      if (!res.ok) {
+        const text = await res.text();
+        logArea('Respuesta no OK: ' + text);
+        fillSelectWithError();
+        return;
+      }
 
-        const Tipos = await res.json();
+      const tipos = await res.json();
+      logArea({ mensaje: 'Recordset recibido', tipos });
 
-        // Limpiar select y agregar opción por defecto
-        select.innerHTML = '<option value="" disabled selected>Seleccione un puesto</option>';
+      if (!Array.isArray(tipos) || tipos.length === 0) {
+        logArea('El endpoint devolvió array vacío o no es un array.');
+        fillSelectWithError();
+        return;
+      }
 
-        Tipos.forEach(p => {
-            const option = document.createElement('option');
-            option.value = p.Nombre; // aquí viene de tu SP
-            option.textContent = p.Nombre;
-            select.appendChild(option);
-        });
+      // Detectar automáticamente campos: buscar id y nombre
+      const sample = tipos[0];
+      const posiblesId = ['idTipoMovimiento','IdTipoMovimiento','idtipoMovimiento','id','ID','Id','Id_TipoMovimiento','IdTipoMov'];
+      const posiblesName = ['Nombre','nombre','Name','name','Descripcion','descripcion'];
+
+      idField = posiblesId.find(f => Object.prototype.hasOwnProperty.call(sample, f));
+      nameField = posiblesName.find(f => Object.prototype.hasOwnProperty.call(sample, f));
+
+      // Si no encontramos, intentar heurística (primer campo numérico y primer campo string)
+      if (!idField) {
+        for (const k of Object.keys(sample)) {
+          if (typeof sample[k] === 'number' || (!isNaN(Number(sample[k])) && String(sample[k]).trim() !== '')) {
+            idField = k; break;
+          }
+        }
+      }
+      if (!nameField) {
+        for (const k of Object.keys(sample)) {
+          if (typeof sample[k] === 'string' && sample[k].length > 0) { nameField = k; break; }
+        }
+      }
+
+      logArea({ detected: { idField, nameField }, sample });
+
+      if (!idField || !nameField) {
+        logArea('No fue posible detectar idField o nameField. Revisar la estructura del recordset.');
+        fillSelectWithError();
+        return;
+      }
+
+      // Normalizar y llenar select
+      tiposGlobal = tipos.map(t => {
+        const idVal = t[idField];
+        const nameVal = t[nameField];
+        return { raw: t, id: (idVal === null || idVal === undefined) ? null : Number(idVal), name: String(nameVal) };
+      });
+
+      const select = document.getElementById('tipoMovimiento');
+      select.innerHTML = '<option value="" disabled selected>Seleccione un Movimiento</option>';
+
+      tiposGlobal.forEach(t => {
+        const option = document.createElement('option');
+        // asegurarnos que value sea string no nulo
+        option.value = (t.id === null || Number.isNaN(t.id)) ? '' : String(t.id);
+        option.textContent = `${t.name} ${t.id === null ? '(sin id)' : ''}`;
+        select.appendChild(option);
+      });
+
+      logStatus('Tipos cargados correctamente');
+      logArea({ tiposGlobal });
 
     } catch (err) {
-        console.error('Error al cargar puestos:', err);
-        select.innerHTML = '<option value="" disabled selected>Error al cargar puestos</option>';
+      logStatus('Error cargando tipos');
+      logArea({ error: String(err) });
+      fillSelectWithError();
     }
-}
+  }
 
-    document.addEventListener('DOMContentLoaded', cargarTipoMov);
-  </script>
+  function fillSelectWithError(){
+    const select = document.getElementById('tipoMovimiento');
+    select.innerHTML = '<option value="" disabled selected>(Error al cargar tipos)</option>';
+  }
+
+  document.addEventListener('DOMContentLoaded', cargarTiposMov);
+
+  // submit
+  document.getElementById('movimientoForm').addEventListener('submit', async function(e){
+    e.preventDefault();
+    logStatus('Intentando enviar movimiento...');
+    const valorDocIdenti = document.getElementById('document').value.trim();
+    const tipoVal = document.getElementById('tipoMovimiento').value;
+    const montoRaw = document.getElementById('monto').value;
+    const Monto = montoRaw === '' ? NaN : Number(montoRaw);
+
+    logArea({ valorDocIdenti, tipoVal, Monto });
+
+    if (!valorDocIdenti) { alert('Ingrese documento'); logStatus('Faltan: documento'); return; }
+    if (!tipoVal) { alert('Seleccione tipo (valor de option vacío). Mira consola para más info'); logStatus('Faltan: tipo'); return; }
+    if (isNaN(Monto)) { alert('Monto inválido'); logStatus('Faltan: monto'); return; }
+
+    // tipoVal ahora debería ser string numérico -> convertimos a número
+    const TipoMovimiento = Number(tipoVal);
+    if (isNaN(TipoMovimiento)) {
+      // intentar buscar por nombre en tiposGlobal si los options tenían value vacío
+      const selectedText = document.getElementById('tipoMovimiento').selectedOptions[0]?.text || null;
+      const found = tiposGlobal.find(t => t.name === selectedText);
+      if (found && found.id !== null) {
+        // usar found.id
+        logArea({ warning: 'El option.value no era numérico; se resolvió por texto', found });
+        sendMovimiento(valorDocIdenti, Number(found.id), Monto);
+        return;
+      }
+      alert('El tipo seleccionado no tiene un ID numérico. Revisa la consola.');
+      logStatus('Error: tipo seleccionado no tiene id numérico');
+      return;
+    }
+
+    // todo ok, enviar
+    sendMovimiento(valorDocIdenti, TipoMovimiento, Monto);
+  });
+
+  async function sendMovimiento(valorDocIdenti, TipoMovimiento, Monto){
+    logStatus('Enviando al backend...');
+    logArea({ valorDocIdenti, TipoMovimiento, Monto });
+
+    try {
+      const res = await fetch('/movimientos', {
+        method: 'POST',
+        headers: {'Content-Type':'application/json'},
+        credentials: 'include',
+        body: JSON.stringify({ valorDocIdenti, TipoMovimiento, Monto })
+      });
+      const data = await res.json();
+      logArea({ responseStatus: res.status, data });
+      if (!res.ok) {
+        alert(data.error || 'Error en backend. Revisa consola.');
+        logStatus('Error backend');
+        return;
+      }
+      alert('Movimiento guardado correctamente');
+      logStatus('Éxito');
+      if (window.opener && typeof window.opener.obtenerMovimientos === 'function') window.opener.obtenerMovimientos();
+      window.close();
+    } catch (err) {
+      logArea({ sendError: String(err) });
+      alert('Error enviando. Revisa consola.');
+      logStatus('Error en fetch');
+    }
+  }
+})();
+</script>
 </body>
 </html>
+
+
+
+
+
+
