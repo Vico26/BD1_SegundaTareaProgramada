@@ -22,5 +22,5 @@ async function insertarMovimiento(valorDocID,idTipoMovimiento,Monto,PostByUser,P
         console.log(err);
         return {success: false, error: err};
     }}
-    module.exports={insertarMovimiento};
+module.exports={insertarMovimiento};
 //insertarMovimiento('6575299',3,5000,3,'151.147.244.214');

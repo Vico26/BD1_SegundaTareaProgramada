@@ -25,4 +25,5 @@ async function insertarEmpleado(ValorDocumentoIdentidad,Nombre,NombrePuesto,Fech
     console.log(err); //imprimir el error en la consola
     return {success: false, error: err};
 }}
+module.exports={insertarEmpleado}; //exportacion de la funcion
 //insertarEmpleado('118693580','Marta Delgado Molina','Albañil','2021-11-12',5,'192.168.100.50');
