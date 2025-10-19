@@ -227,7 +227,7 @@ router.get('/empleados/movimientos/:valorDocId',async(req,res)=>{
 router.post('/empleados/movimientos',async(req,res)=>{
     try{
         const{valorDocIdenti,TipoMovimiento,Monto}=req.body;
-        const PostByUser=req.session.userId; // Obtener el usuario de la sesión
+        const PostByUser=req.session.userId; 
         const PostInIP=req.headers['x-forwarded-for'] || req.connection.remoteAddress||req.ip;
         if(!valorDocIdenti||!TipoMovimiento||!Monto||!PostByUser){
             return res.status(401).json({error:'Faltan datos obligatorios'});
@@ -244,6 +244,7 @@ router.post('/empleados/movimientos',async(req,res)=>{
         res.status(500).json({ error: 'Error interno del servidor' });
     }  
 });
+
 /*Funciones extra*/ 
 router.get('/puestos', async (req, res) => {
     try {
