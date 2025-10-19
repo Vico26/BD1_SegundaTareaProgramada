@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Borrar empleado</title>
+    <style>
+        * { margin:0; padding:0; box-sizing:border-box; font-family:'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        body { background:linear-gradient(135deg,#6a11cb 0%,#2575fc 100%); min-height:100vh; display:flex; justify-content:center; align-items:flex-start; padding:20px; }
+        .container { background-color:#fff; border-radius:12px; box-shadow:0 10px 30px rgba(0,0,0,0.2); width:100%; max-width:600px; padding:30px; margin-top:30px; }
+        h1 { color:#333; text-align:center; margin-bottom:20px; font-size:24px; font-weight:600; }
+        .form-group { margin-bottom:15px; }
+        label { display:block; margin-bottom:5px; font-weight:500; color:#555; }
+        input { width:100%; padding:10px; border:1px solid #ddd; border-radius:6px; font-size:16px; }
+        button { padding:10px 15px; border:none; border-radius:6px; font-size:16px; cursor:pointer; background-color:#4a90e2; color:white; transition:0.3s; }
+        button:hover { background-color:#3a7bc8; }
+        table { width:100%; border-collapse:collapse; margin-top:20px; }
+        th, td { border:1px solid #ddd; padding:10px; text-align:center; }
+        th { background-color:#007bff; color:white; }
+        .error { color:#e74c3c; margin-top:10px; text-align:center; }
+        /* Modal */
+        .modal {
+            display:none; position:fixed; top:0; left:0; width:100%; height:100%;
+            background:rgba(0,0,0,0.5); justify-content:center; align-items:center;
+        }
+        .modal-content {
+            background:white; padding:20px; border-radius:10px; width:300px; text-align:center;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>Borrar Empleado</h1>
+    <form id="consultaForm">
+        <div class="form-group">
+            <label for="filtro">Documento o nombre:</label>
+            <input type="text" id="filtro" placeholder="Ingrese documento o nombre" required>
+        </div>
+        <button type="submit">Consultar</button>
+    </form>
+
+    <div id="error" class="error"></div>
+
+    <table id="tablaEmpleados" style="display:none;">
+        <thead>
+            <tr>
+                <th>Valor Documento Identidad</th>
+                <th>Acciones</th>
+            </tr>
+        </thead>
+        <tbody></tbody>
+    </table>
+</div>
+
+<!-- Modal Confirmación -->
+<div id="modalConfirm" class="modal">
+    <div class="modal-content">
+        <p>¿Está seguro que desea borrar este empleado?</p>
+        <button id="btnAceptar">Aceptar</button>
+        <button id="btnCancelar">Cancelar</button>
+    </div>
+</div>
+
+<script>
+let empleadoSeleccionado = null;
+
+document.getElementById('consultaForm').addEventListener('submit', async function (e) {
+    e.preventDefault();
+    const filtro = document.getElementById('filtro').value.trim();
+
+    try {
+        const resp = await fetch(`/empleados/consultar/${filtro}`);
+        const data = await resp.json();
+
+        if (!data || data.length === 0) {
+            document.getElementById('error').textContent = 'Empleado no encontrado';
+            document.getElementById('tablaEmpleados').style.display = 'none';
+            return;
+        }
+
+        const tbody = document.querySelector('#tablaEmpleados tbody');
+        tbody.innerHTML = '';
+
+        data.forEach(emp => {
+            const tr = document.createElement('tr');
+            tr.innerHTML = `
+                <td>${emp.valorDocumentoIdentidad}</td>
+                <td><button class="btnEliminar" data-id="${emp.valorDocumentoIdentidad}">Eliminar</button></td>
+            `;
+            tbody.appendChild(tr);
+        });
+
+        document.getElementById('tablaEmpleados').style.display = 'table';
+
+        document.querySelectorAll('.btnEliminar').forEach(btn => {
+            btn.addEventListener('click', function () {
+                empleadoSeleccionado = this.getAttribute('data-id');
+                abrirModalConfirmacion();
+            });
+        });
+
+    } catch (err) {
+        document.getElementById('error').textContent = 'Error al consultar empleados';
+    }
+});
+
+function abrirModalConfirmacion() {
+    document.getElementById('modalConfirm').style.display = 'flex';
+}
+
+function cerrarModalConfirmacion() {
+    document.getElementById('modalConfirm').style.display = 'none';
+}
+
+document.getElementById('btnCancelar').addEventListener('click', cerrarModalConfirmacion);
+
+document.getElementById('btnAceptar').addEventListener('click', async function () {
+    if (!empleadoSeleccionado) return;
+    try {
+        const resp = await fetch(`/empleados/borrar/${empleadoSeleccionado}`, { method:'DELETE' });
+        const data = await resp.json();
+
+        if (resp.ok) {
+            alert('Empleado borrado correctamente');
+        } else {
+            alert(`Error: ${data.error}`);
+        }
+
+        cerrarModalConfirmacion();
+        document.getElementById('consultaForm').dispatchEvent(new Event('submit'));
+    } catch (err) {
+        alert('Error al eliminar empleado');
+    }
+});
+</script>
+</body>
+</html>
